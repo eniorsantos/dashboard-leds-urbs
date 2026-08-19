@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leds Urbs · Painel de Programação</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚌</text></svg>">
+<style>
+  :root {
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --muted: #64748b;
+    --accent: #2563eb;
+    --accent-dark: #1e40af;
+    --g-ativa: #16a34a;
+    --g-fixa: #0d9488;
+    --g-apoio: #7c3aed;
+    --g-futura: #2563eb;
+    --g-reservada: #d97706;
+    --g-encerrada: #94a3b8;
+    --radius: 14px;
+    --shadow: 0 1px 3px rgba(15,23,42,.08), 0 4px 16px rgba(15,23,42,.06);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  header {
+    background: linear-gradient(135deg, #1e3a8a 0%, var(--accent) 100%);
+    color: #fff;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  header h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: .3px; }
+  header .sub { font-size: 12.5px; opacity: .85; margin-top: 2px; }
+  .spacer { flex: 1; }
+  .btn {
+    background: rgba(255,255,255,.14);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.35);
+    padding: 8px 14px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background .15s;
+  }
+  .btn:hover { background: rgba(255,255,255,.26); }
+  .btn.primary { background: #fff; color: var(--accent-dark); border-color: #fff; }
+  .btn.primary:hover { background: #eef2ff; }
+  .sel-btn { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; max-width: 210px; }
+  .sel-btn option { color: #0f172a; }
+  input[type=file] { display: none; }
+  .wrap { max-width: 1320px; margin: 20px auto; padding: 0 20px; }
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi .bar { position: absolute; left: 0; right: 0; top: 0; height: 4px; }
+  .kpi .num { font-size: 30px; font-weight: 800; line-height: 1.1; }
+  .kpi .lbl { color: var(--muted); font-size: 12.5px; font-weight: 600; margin-top: 2px; }
+  .kpi .sub { color: var(--muted); font-size: 11.5px; margin-top: 4px; }
+  .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+  @media (max-width: 900px) { .cols2 { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+  }
+  .card h3 { margin: 0 0 12px; font-size: 15px; font-weight: 700; }
+  .chip { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
+  .ate-item { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px dashed var(--border); font-size: 13px; }
+  .ate-item:last-child { border-bottom: none; }
+  .ate-item .dias { font-weight: 800; white-space: nowrap; }
+  .ate-item .g-data { color: var(--muted); font-size: 11.5px; font-weight: 600; }
+  .ate-item .telas { background: #eef2f7; color: #475569; border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 800; white-space: nowrap; cursor: default; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  .filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .filters input[type=search], .filters select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    font-size: 13px;
+    background: #fff;
+    color: var(--text);
+  }
+  .filters input[type=search] { flex: 1 1 220px; min-width: 180px; }
+  .filters select { min-width: 160px; }
+  .timeline-scroll { overflow-x: auto; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 10px 0 4px; font-size: 12px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .dot { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+  .table-scroll { overflow-x: auto; max-height: 460px; overflow-y: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { position: sticky; top: 0; background: #f8fafc; z-index: 2; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); }
+  tbody tr:hover { background: #f8fafc; }
+  .bdg { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .b-ativa { background: #dcfce7; color: #15803d; }
+  .b-fixa { background: #ccfbf1; color: #0f766e; }
+  .b-apoio { background: #f3e8ff; color: #6d28d9; }
+  .b-futura { background: #dbeafe; color: #1d4ed8; }
+  .b-reservada { background: #fef3c7; color: #b45309; }
+  .b-encerrada { background: #e2e8f0; color: #475569; }
+  .guides { display: flex; gap: 12px; flex-wrap: wrap; }
+  .guide { flex: 1 1 260px; }
+  .g-title { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 6px; }
+  .stack { display: flex; height: 14px; border-radius: 7px; overflow: hidden; margin: 8px 0 12px; }
+  .stack .seg { height: 100%; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 12.5px; }
+  .bar-row .nm { width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar-row .tr { flex: 1; background: #f1f5f9; border-radius: 6px; height: 12px; overflow: hidden; }
+  .bar-row .fi { background: var(--accent); height: 100%; border-radius: 6px; }
+  .bar-row .ct { width: 34px; text-align: right; color: var(--muted); font-weight: 700; }
+  nav.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  nav.tabs button {
+    padding: 9px 18px; border: 1px solid var(--border); background: #fff; border-radius: 10px;
+    font-size: 13px; font-weight: 700; cursor: pointer; color: var(--muted);
+  }
+  nav.tabs button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  nav.grupos { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+  nav.grupos .g-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-right: 4px; }
+  nav.grupos button {
+    padding: 7px 14px; border: 1px solid var(--border); background: #fff; border-radius: 999px;
+    font-size: 12.5px; font-weight: 600; cursor: pointer; color: #334155;
+    display: inline-flex; align-items: center; gap: 7px; transition: background .15s, border-color .15s;
+  }
+  nav.grupos button:hover { border-color: var(--accent); }
+  nav.grupos button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  nav.grupos button .cnt {
+    background: #f1f5f9; color: var(--muted); border-radius: 999px; padding: 1px 8px; font-size: 11.5px; font-weight: 700;
+  }
+  nav.grupos button.on .cnt { background: rgba(255,255,255,.25); color: #fff; }
+  nav.telas { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0 10px; }
+  nav.telas button {
+    padding: 5px 11px; border: 1px solid var(--border); background: #fff; border-radius: 999px;
+    font-size: 12px; font-weight: 600; cursor: pointer; color: #334155;
+    display: inline-flex; align-items: center; gap: 6px; max-width: 220px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: background .15s, border-color .15s;
+  }
+  nav.telas button:hover { border-color: var(--accent); }
+  nav.telas button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  nav.telas button .cnt { background: #f1f5f9; color: var(--muted); border-radius: 999px; padding: 0 7px; font-size: 11px; font-weight: 700; }
+  nav.telas button.on .cnt { background: rgba(255,255,255,.25); color: #fff; }
+  table tr.grp td {
+    background: #f8fafc; font-weight: 800; font-size: 12.5px; color: #0f172a;
+    border-top: 2px solid #e2e8f0; padding: 8px 12px; cursor: default;
+  }
+  table tr.grp td .g-ico { color: var(--accent); margin-right: 6px; }
+  .dropzone {
+    border: 2px dashed #cbd5e1; border-radius: var(--radius); padding: 26px; text-align: center;
+    color: var(--muted); cursor: pointer; margin-bottom: 16px; transition: border-color .15s, background .15s;
+  }
+  .dropzone.drag { border-color: var(--accent); background: #eff6ff; }
+  .dropzone strong { color: var(--accent); }
+  .dropzone small { display: block; margin-top: 4px; }
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: #0f172a; color: #fff; padding: 12px 20px; border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.25); opacity: 0; pointer-events: none;
+    transition: opacity .25s; z-index: 99; font-weight: 600;
+  }
+  .toast.show { opacity: 1; }
+  #gs-live { font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: #fff; color: #16a34a; white-space: nowrap; }
+  #gs-live.err { color: #dc2626; }
+  #gs-live.warn { color: #d97706; }
+  .gs-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+  .gs-card { background: #fff; border-radius: 14px; max-width: 460px; width: 100%; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,.3); }
+  .gs-card h2 { margin: 0 0 4px; font-size: 17px; }
+  .gs-card .gs-sub { color: var(--muted); font-size: 12.5px; margin-bottom: 14px; }
+  .gs-card label { display: block; font-size: 12px; font-weight: 700; color: #334155; margin: 12px 0 4px; }
+  .gs-card input, .gs-card select {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; box-sizing: border-box;
+  }
+  .gs-status { margin-top: 12px; padding: 10px 12px; border-radius: 9px; background: #f8fafc; font-size: 12.5px; font-weight: 600; color: var(--muted); min-height: 40px; }
+  .gs-status.ok { background: #ecfdf5; color: #047857; }
+  .gs-status.err { background: #fef2f2; color: #b91c1c; }
+  .gs-status.warn { background: #fffbeb; color: #b45309; }
+  .gs-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .gs-btns .sp { flex: 1; }
+  .cfg-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: none; justify-content: flex-end; align-items: stretch; z-index: 110; }
+  .cfg-drawer { background: #fff; width: 370px; max-width: 94vw; height: 100vh; overflow: auto; padding: 22px; box-shadow: -18px 0 40px rgba(0,0,0,.25); box-sizing: border-box; animation: cfgIn .22s ease; position: relative; }
+  .cfg-close { position: absolute; top: 12px; right: 12px; border: 1px solid var(--border); background: #fff; color: #334155; width: 32px; height: 32px; border-radius: 8px; font-size: 15px; line-height: 1; cursor: pointer; }
+  .cfg-close:hover { background: #f1f5f9; }
+  @keyframes cfgIn { from { transform: translateX(50px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .cfg-drawer h2 { margin: 0 0 4px; font-size: 17px; padding-right: 40px; }
+  .cfg-sub { color: var(--muted); font-size: 12.5px; margin: 0 0 16px; }
+  .cfg-drawer label { display: block; font-size: 12px; font-weight: 700; color: #334155; margin: 14px 0 4px; }
+  .cfg-drawer input, .cfg-drawer select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; box-sizing: border-box; }
+  .cfg-info { margin-top: 12px; padding: 10px 12px; border-radius: 9px; background: #f8fafc; font-size: 12.5px; font-weight: 600; color: var(--muted); min-height: 40px; }
+  .cfg-info.ok { background: #ecfdf5; color: #047857; }
+  .cfg-info.err { background: #fef2f2; color: #b91c1c; }
+  .cfg-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .cfg-btns .sp { flex: 1; }
+  .cfg-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .cfg-item { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
+  .cfg-item-txt { flex: 1; min-width: 0; }
+  .cfg-item-nome { font-size: 13px; font-weight: 700; color: #0f172a; }
+  .cfg-item-url { font-size: 11.5px; color: var(--muted); word-break: break-all; margin-top: 2px; }
+  .cfg-item-btns { display: flex; gap: 6px; }
+  .cfg-item-btns .btn { padding: 6px 10px; font-size: 12px; }
+  .cfg-drawer .btn { background: #fff; color: #334155; border-color: var(--border); }
+  .cfg-drawer .btn:hover { background: #f1f5f9; }
+  .cfg-drawer .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .cfg-drawer .btn.primary:hover { background: var(--accent-dark); }
+  .cfg-del { color: #b91c1c; border-color: #fecaca; }
+  .cfg-del:hover { background: #fef2f2; }
+  @media print {
+    header, nav.tabs, nav.grupos, .filters, .dropzone, .kpis, .cols2, .legend, .btn, #gs-live { display: none !important; }
+    body { background: #fff; }
+    .wrap { max-width: none; }
+    .card { box-shadow: none; border-color: #ccc; }
+    .timeline-scroll { overflow: visible; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🚌 Leds Urbs · Painel de Programação</h1>
+    <div class="sub" id="meta">Carregando dados…</div>
+  </div>
+  <div class="spacer"></div>
+  <span id="gs-live" style="display:none"></span>
+  <button class="btn" onclick="openConfig()">⚙️ Configurações</button>
+  <select id="sel-gs-planilha" class="btn sel-btn" onchange="selPlanilha(this.value)" title="Escolher planilha do Google">
+    <option value="">📊 Escolher planilha…</option>
+  </select>
+  <button class="btn" onclick="openGS()">🌐 Google Sheets</button>
+  <button class="btn" id="btn-edit-gs" style="display:none" onclick="editarGoogle()">✏️ Editar no Google</button>
+  <button class="btn primary" onclick="document.getElementById('file').click()">📄 Carregar planilha (.xlsx)</button>
+  <button class="btn" onclick="window.print()">🖨️ Imprimir / PDF</button>
+  <input type="file" id="file" accept=".xlsx, .xls">
+</header>
+
+<div class="wrap">
+  <nav class="tabs">
+    <button id="tab-leds" class="active" onclick="showTab('leds')">📍 Programação das Telas</button>
+  </nav>
+
+  <!-- dropzone (escondida quando dados.js já carregados) -->
+  <div id="drop" class="dropzone" style="display:none">
+    <strong>Solte aqui o arquivo .xlsx</strong> ou clique para escolher (atualiza o painel)
+    <small>O arquivo deve seguir o modelo "Leds Urbs": aba LEDS com as 16 telas.</small>
+  </div>
+
+  <div id="leds-panel">
+    <nav class="grupos" id="grupos"></nav>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="cols2" id="atencao"></div>
+
+    <div class="cols2">
+      <div class="card" id="situacao-card">
+        <h3>Campanhas por situação</h3>
+        <div id="situacao"></div>
+      </div>
+      <div class="card" id="top-card">
+        <h3>Anunciantes com mais telas (veiculando)</h3>
+        <div id="top-campanhas"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <div class="filters" style="margin-bottom:0">
+        <input type="search" id="q" placeholder="🔍 Buscar campanha…" oninput="renderViews()">
+        <select id="fLocal" onchange="renderViews()"></select>
+        <select id="fSecao" onchange="renderViews()">
+          <option value="todas">Todas as seções</option>
+          <option value="veiculando">Veiculando</option>
+          <option value="reservadas">Reservadas</option>
+        </select>
+        <select id="fEstado" onchange="renderViews()">
+          <option value="todas">Todos os status</option>
+          <option value="ATIVA">Ativa agora</option>
+          <option value="FIXA">Fixa</option>
+          <option value="APOIO">Apoio</option>
+          <option value="FUTURA">Futura</option>
+          <option value="ENCERRADA">Encerrada</option>
+          <option value="SEM_DATA">Sem data</option>
+        </select>
+      </div>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--g-ativa)"></span> Ativa agora</span>
+        <span><span class="dot" style="background:var(--g-fixa)"></span> Fixa</span>
+        <span><span class="dot" style="background:var(--g-apoio)"></span> Apoio</span>
+        <span><span class="dot" style="background:var(--g-futura)"></span> Futura</span>
+        <span><span class="dot" style="background:var(--g-reservada)"></span> Reservada</span>
+        <span><span class="dot" style="background:var(--g-encerrada)"></span> Encerrada</span>
+        <span><span style="border-left:2px dashed #ef4444; height:12px; display:inline-block"></span> Hoje</span>
+      </div>
+      <div class="timeline-scroll"><div id="timeline"></div></div>
+    </div>
+
+    <div class="card">
+      <h3>Detalhamento por tela <span id="tbl-count" style="color:var(--muted);font-weight:600"></span></h3>
+      <nav class="telas" id="telas-menu"></nav>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Tela</th><th>Campanha</th><th>Seção</th><th>Início</th><th>Fim</th><th>Tipo</th><th>Situação</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<div class="gs-overlay" id="gs">
+  <div class="gs-card">
+    <h2>🌐 Google Sheets</h2>
+    <div class="gs-sub">Conecta o painel a uma planilha <b>LEDS Urbs</b> online, com atualização em tempo real (a cada 15 s, 30 s ou 60 s).</div>
+    <label>Link ou ID da planilha</label>
+    <input type="text" id="gs-url" placeholder="https://docs.google.com/spreadsheets/d/…  ou  …/d/e/…/pub?output=xlsx" autocomplete="off">
+    <div class="gs-sub" style="margin-top:6px;margin-bottom:0">Aceita o link normal (<b>/d/…</b>), a planilha <b>publicada para a web</b> (<b>/d/e/…/pub</b> — Arquivo → Compartilhar → Publicar na web) ou o ID puro. Formato igual ao "Leds Urbs": aba <b>LEDS</b> com as 16 telas.</div>
+    <div class="gs-sub" style="margin-top:8px;margin-bottom:0;color:#b45309">⚠️ O Google bloqueia a conexão quando o painel é aberto direto do arquivo (<b>file://</b>) — erro "Failed to fetch". Abra sempre pelo <b>iniciar.bat</b> (http://localhost:8000/dashboard/).</div>
+    <label>API Key (opcional)</label>
+    <input type="text" id="gs-key" placeholder="Chave da Google Sheets API (só se a planilha for privada)" autocomplete="off">
+    <div class="gs-sub" style="margin-top:6px;margin-bottom:0">Sem a chave, usa conexão <b>pública</b> (gviz). Com a chave, usa a <b>Sheets API v4</b> (permite planilha privada).</div>
+    <label>Frequência de atualização</label>
+    <select id="gs-freq">
+      <option value="0">Manual (só clicar em "Atualizar")</option>
+      <option value="15000" selected>Automática · 15 segundos</option>
+      <option value="30000">Automática · 30 segundos</option>
+      <option value="60000">Automática · 1 minuto</option>
+    </select>
+    <div class="gs-status" id="gs-status">Nenhuma conexão ativa. Cole o link e clique em "Conectar".</div>
+    <div class="gs-btns">
+      <button class="btn primary" onclick="gsConectar()">Conectar</button>
+      <button class="btn" onclick="gsCarregar()">Atualizar agora</button>
+      <button class="btn" onclick="gsDesconectar()">Desconectar</button>
+      <div class="sp"></div>
+      <button class="btn" onclick="document.getElementById('gs').style.display='none'">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="cfg-overlay" id="cfg" onclick="if(event.target===this)fecharConfig()">
+  <div class="cfg-drawer">
+    <button class="cfg-close" onclick="fecharConfig()" title="Fechar">✕</button>
+    <h2>⚙️ Configurações</h2>
+    <div class="cfg-sub">Ajustes do painel. Salvos neste navegador.</div>
+
+    <label>Nome (opcional)</label>
+    <input type="text" id="cfg-nome" placeholder="Ex.: Leds Urbs — Norte" autocomplete="off">
+    <label>Link ou ID do Google Sheets</label>
+    <input type="text" id="cfg-url" placeholder="https://docs.google.com/spreadsheets/d/…  ou  …/d/e/…/pub?output=xlsx" autocomplete="off">
+    <div class="cfg-sub" style="margin-top:6px;margin-bottom:0">Aceita link normal (<b>/d/…</b>), planilha <b>publicada para a web</b> (<b>/d/e/…/pub</b>) ou só o ID.</div>
+    <div class="cfg-btns">
+      <button class="btn primary" onclick="cfgAdicionar()">＋ Adicionar planilha</button>
+    </div>
+
+    <label>Planilhas salvas</label>
+    <div id="cfg-list" class="cfg-list"></div>
+
+    <div class="cfg-info" id="cfg-info"></div>
+
+    <div class="cfg-btns">
+      <div class="sp"></div>
+      <button class="btn" onclick="fecharConfig()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script src="lib/xlsx.full.min.js"></script>
+<script src="dados.js"></script>
+<script>
+"use strict";
+
+var DADOS = (typeof window.DADOS_LEDS !== "undefined") ? window.DADOS_LEDS : null;
+var HOJE = hojeISO();
+
+function pad(n){ return n < 10 ? "0"+n : String(n); }
+function hojeISO(){ var d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function iso(d){ if(!d) return null; return d.getUTCFullYear()+"-"+pad(d.getUTCMonth()+1)+"-"+pad(d.getUTCDate()); }
+function diasEntre(a,b){ return Math.round((new Date(b+"T12:00:00") - new Date(a+"T12:00:00"))/864e5); }
+function fmtBr(ds){ if(!ds) return "—"; var p=ds.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function toast(msg){ var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(function(){ t.classList.remove("show"); },3200); }
+
+function tipoCamp(c){
+  var t = (c.ini_texto||"").toUpperCase();
+  if (t === "FIXO") return "FIXA";
+  if (t === "APOIO") return "APOIO";
+  return "PERIODO";
+}
+function estadoCamp(c){
+  var tipo = tipoCamp(c);
+  if (tipo === "FIXA") return "FIXA";
+  if (tipo === "APOIO") return "APOIO";
+  if (c.inicio && c.fim){
+    if (HOJE < c.inicio) return "FUTURA";
+    if (HOJE > c.fim)   return "ENCERRADA";
+    return "ATIVA";
+  }
+  return "SEM_DATA";
+}
+function secaoLabel(s){ return s === "veiculando" ? "Veiculando" : "Reservadas"; }
+
+function todasCampanhas(){
+  var out = [];
+  (DADOS.locais||[]).forEach(function(l){
+    (l.campanhas||[]).forEach(function(c){
+      out.push({
+        localNum: l.numero, localNome: l.nome,
+        nome: c.nome, inicio: c.inicio, fim: c.fim,
+        secao: c.secao, tipo: tipoCamp(c), estado: estadoCamp(c)
+      });
+    });
+  });
+  return out;
+}
+
+function filtrosAtivos(){
+  return {
+    q: ((document.getElementById("q").value)||"").trim().toLowerCase(),
+    local: (document.getElementById("fLocal").value)||"todas",
+    secao: (document.getElementById("fSecao").value)||"todas",
+    estado: (document.getElementById("fEstado").value)||"todas"
+  };
+}
+function aplicarFiltros(camp, f){
+  if (f.q && camp.nome.toLowerCase().indexOf(f.q) === -1) return false;
+  if (f.local !== "todas" && String(camp.localNum) !== f.local) return false;
+  if (f.secao !== "todas" && camp.secao !== f.secao) return false;
+  if (f.estado !== "todas" && camp.estado !== f.estado) return false;
+  return true;
+}
+
+/* ---------- KPIs ---------- */
+function renderKPIs(){
+  var all = todasCampanhas();
+  var veic = all.filter(function(c){ return c.secao === "veiculando"; });
+  var ativas = veic.filter(function(c){ return c.estado === "ATIVA" || c.estado === "FIXA"; }).length;
+  var futuras = all.filter(function(c){ return c.estado === "FUTURA"; }).length;
+  var encerradas = all.filter(function(c){ return c.estado === "ENCERRADA"; }).length;
+  var tote = all.filter(function(c){ return c.secao === "reservadas"; }).length;
+  var kpis = [
+    { bar:"#2563eb", num:String((DADOS.locais||[]).length), lbl:"Telas de LED", sub:"locais na rede" },
+    { bar:"#16a34a", num:String(ativas), lbl:"Veiculando agora", sub:"ativas + fixas hoje" },
+    { bar:"#0d9488", num:String(veic.filter(function(c){return c.estado==="FIXA";}).length), lbl:"Campanhas fixas", sub:"veiculação permanente" },
+    { bar:"#d97706", num:String(tote), lbl:"Reservadas", sub:"agendadas no futuro" },
+    { bar:"#2563eb", num:String(futuras), lbl:"Futuras", sub:"com data de início" },
+    { bar:"#94a3b8", num:String(encerradas), lbl:"Encerradas", sub:"período já finalizado" }
+  ];
+  var h = "";
+  kpis.forEach(function(k){
+    h += '<div class="kpi"><div class="bar" style="background:'+k.bar+'"></div>'+
+         '<div class="num" style="color:'+k.bar+'">'+k.num+'</div>'+
+         '<div class="lbl">'+k.lbl+'</div><div class="sub">'+k.sub+'</div></div>';
+  });
+  document.getElementById("kpis").innerHTML = h;
+}
+
+/* ---------- Atenção ---------- */
+function agruparAte(lista, dataKey){
+  var grupos = {};
+  lista.forEach(function(c){
+    var nome = (c.nome||"").trim().toUpperCase();
+    var k = nome + "|" + (c[dataKey]||"");
+    if (!grupos[k]) grupos[k] = { nome: c.nome, data: c[dataKey], telas: [] };
+    grupos[k].telas.push(c.localNome);
+  });
+  return Object.keys(grupos).map(function(k){ return grupos[k]; })
+      .sort(function(a,b){ return (a.data<b.data?-1:1); });
+}
+
+function renderAtencao(){
+  var all = todasCampanhas();
+  var enc = agruparAte(all.filter(function(c){
+    return c.estado === "ATIVA" && c.fim && diasEntre(HOJE, c.fim) >= 0 && diasEntre(HOJE, c.fim) <= 7;
+  }), "fim");
+  var ini = agruparAte(all.filter(function(c){
+    return c.estado === "FUTURA" && c.inicio && diasEntre(HOJE, c.inicio) <= 21;
+  }), "inicio");
+
+  var h1 = '<div class="guide"><div class="g-title" style="color:#b45309">⏳ Encerram em até 7 dias</div>';
+  if (!enc.length) h1 += '<div class="empty">Nenhuma campanha encerrando nos próximos 7 dias.</div>';
+  enc.forEach(function(g){
+    h1 += '<div class="ate-item"><span>'+esc(g.nome)+' <span class="g-data">'+fmtBr(g.data)+'</span></span>'+
+          '<span style="display:flex;gap:8px;align-items:center">'+
+          '<span class="telas" title="'+esc(g.telas.join(" · "))+'">×'+g.telas.length+'</span>'+
+          '<span class="dias" style="color:#d97706">'+diasEntre(HOJE, g.data)+' d</span></span></div>';
+  });
+  h1 += '</div>';
+
+  var h2 = '<div class="guide"><div class="g-title" style="color:#1d4ed8">🚀 Iniciam em até 21 dias</div>';
+  if (!ini.length) h2 += '<div class="empty">Nenhuma campanha iniciando nos próximos 21 dias.</div>';
+  ini.forEach(function(g){
+    h2 += '<div class="ate-item"><span>'+esc(g.nome)+' <span class="g-data">'+fmtBr(g.data)+'</span></span>'+
+          '<span class="telas" title="'+esc(g.telas.join(" · "))+'">×'+g.telas.length+'</span></div>';
+  });
+  h2 += '</div>';
+
+  if (!enc.length && !ini.length){ document.getElementById("atencao").style.display="none"; }
+  else {
+    document.getElementById("atencao").style.display="grid";
+    document.getElementById("atencao").innerHTML =
+      '<div class="card">'+h1+'</div><div class="card">'+h2+'</div>';
+  }
+}
+
+/* ---------- Situação (stack) e top anunciantes ---------- */
+function renderSituacao(){
+  var all = todasCampanhas().filter(function(c){ return c.estado !== "SEM_DATA"; });
+  var cores = { ATIVA:["#16a34a","Ativa"], FIXA:["#0d9488","Fixa"], APOIO:["#7c3aed","Apoio"],
+                FUTURA:["#2563eb","Futura"], ENCERRADA:["#94a3b8","Encerrada"] };
+  var tot = all.length || 1;
+  var h = '<div class="stack">';
+  Object.keys(cores).forEach(function(k){
+    var n = all.filter(function(c){ return c.estado === k; }).length;
+    if (n) h += '<div class="seg" style="width:'+(n/tot*100)+'%;background:'+cores[k][0]+'" title="'+cores[k][1]+': '+n+'"></div>';
+  });
+  h += '</div><div>';
+  Object.keys(cores).forEach(function(k){
+    var n = all.filter(function(c){ return c.estado === k; }).length;
+    h += '<span style="display:inline-flex;align-items:center;gap:6px;margin-right:16px;font-size:12.5px;color:var(--muted)">'+
+         '<span class="dot" style="background:'+cores[k][0]+';border-radius:50%"></span>'+cores[k][1]+': <b style="color:var(--text)">'+n+'</b></span>';
+  });
+  h += '</div>';
+  document.getElementById("situacao").innerHTML = h;
+}
+
+function renderTop(){
+  var cont = {};
+  todasCampanhas().forEach(function(c){
+    if (c.secao !== "veiculando") return;
+    var n = (c.nome||"").trim().toUpperCase();
+    if (!n) return;
+    cont[n] = (cont[n]||0)+1;
+  });
+  var arr = Object.keys(cont).map(function(n){ return {nome:n, qtd:cont[n]}; })
+      .sort(function(a,b){ return b.qtd-a.qtd; }).slice(0,8);
+  var max = arr.length ? arr[0].qtd : 1;
+  if (!arr.length){ document.getElementById("top-card").style.display="none"; return; }
+  document.getElementById("top-card").style.display="block";
+  var h = "";
+  arr.forEach(function(a){
+    h += '<div class="bar-row"><span class="nm" title="'+esc(a.nome)+'">'+esc(a.nome)+'</span>'+
+         '<div class="tr"><div class="fi" style="width:'+(a.qtd/max*100)+'%"></div></div>'+
+         '<span class="ct">'+a.qtd+'</span></div>';
+  });
+  document.getElementById("top-campanhas").innerHTML = h;
+}
+
+/* ---------- Timeline ---------- */
+function renderTimeline(){
+  var f = filtrosAtivos();
+  var all = todasCampanhas().filter(function(c){ return aplicarFiltros(c, f); });
+  var dated = all.filter(function(c){ return c.inicio && c.fim; });
+
+  var minD = HOJE, maxD = HOJE;
+  dated.forEach(function(c){
+    if (c.inicio < minD) minD = c.inicio;
+    if (c.fim > maxD) maxD = c.fim;
+  });
+  var padMin = 12, padMax = 12;
+  minD = addDias(minD, -padMin); maxD = addDias(maxD, padMax);
+  var span = diasEntre(minD, maxD) || 1;
+
+  var locais = (DADOS.locais||[]).filter(function(l){
+    if (f.local !== "todas" && String(l.numero) !== f.local) return false;
+    var has = (l.campanhas||[]).some(function(c){
+      return aplicarFiltros({localNum:l.numero, localNome:l.nome, nome:c.nome, inicio:c.inicio, fim:c.fim,
+        secao:c.secao, tipo:tipoCamp(c), estado:estadoCamp(c)}, f);
+    });
+    return has;
+  });
+
+  var LR = 240, RH = 34, TOP = 30, BOT = 26;
+  var W = LR + 980;
+  var H = TOP + locais.length*RH + BOT;
+  var x = function(ds){ return LR + (diasEntre(minD, ds)/span) * (W-LR); };
+  var barW = function(ds){ return Math.max(3, (diasEntre(minD, ds)/span) * (W-LR) ); };
+
+  var cores = { ATIVA:"#16a34a", FIXA:"#0d9488", APOIO:"#7c3aed", FUTURA:"#2563eb", RESERVADA:"#d97706", ENCERRADA:"#cbd5e1" };
+
+  var s = '<svg width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" style="min-width:'+W+'px;display:block">';
+
+  // fundo zebra
+  locais.forEach(function(l, i){
+    if (i%2===1){ var yy = TOP + i*RH; s += '<rect x="0" y="'+yy+'" width="'+W+'" height="'+RH+'" fill="#f8fafc"/>'; }
+  });
+  // grade mensal
+  var m = new Date(minD+"T12:00:00");
+  m.setUTCDate(1);
+  var guard = 0;
+  var months = [];
+  while (m <= new Date(maxD+"T12:00:00") && guard++ < 60){
+    var ms = iso(m);
+    if (ms >= minD){
+      var mx = x(ms);
+      s += '<line x1="'+mx+'" y1="'+TOP+'" x2="'+mx+'" y2="'+(H-BOT)+'" stroke="#e2e8f0" stroke-width="1"/>';
+      months.push({ x: mx, label: monthLabel(ms) });
+    }
+    m.setUTCMonth(m.getUTCMonth()+1);
+  }
+
+  // hoje
+  var tx = x(HOJE);
+  s += '<line x1="'+tx+'" y1="'+TOP+'" x2="'+tx+'" y2="'+(H-BOT)+'" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,4"/>';
+  s += '<text x="'+(tx+4)+'" y="'+(TOP-6)+'" fill="#ef4444" font-size="11" font-weight="700">HOJE</text>';
+
+  // labels dos meses
+  s += months.map(function(mo){ return '<text x="'+(mo.x+3)+'" y="'+(TOP-6)+'" fill="#94a3b8" font-size="10.5">'+mo.label+'</text>'; }).join("");
+
+  // linhas e barras por local
+  locais.forEach(function(l, i){
+    var y = TOP + i*RH;
+    var camp = (l.campanhas||[]).map(function(c){ return {
+      nome:c.nome, inicio:c.inicio, fim:c.fim, secao:c.secao, tipo:tipoCamp(c), estado:estadoCamp(c)
+    }; }).filter(function(c){ return aplicarFiltros({localNum:l.numero, localNome:l.nome, nome:c.nome, inicio:c.inicio, fim:c.fim, secao:c.secao, tipo:c.tipo, estado:c.estado}, f); });
+
+    s += '<line x1="0" y1="'+(y+RH)+'" x2="'+W+'" y2="'+(y+RH)+'" stroke="#eef2f7"/>';
+    s += '<text x="10" y="'+(y+RH/2+4)+'" font-size="12" fill="#334155" font-weight="600">'+esc(l.nome)+'</text>';
+
+    var linhas = camp.filter(function(c){ return c.inicio && c.fim; });
+    linhas.forEach(function(c, j){
+      var x0 = x(c.inicio), x1 = Math.max(x0+4, x(c.fim));
+      var cor = (c.secao === "reservadas") ? cores.RESERVADA : (cores[c.estado]||"#cbd5e1");
+      var hb = (c.secao === "reservadas") ? 10 : 14;
+      var yy = y + RH/2 - hb/2 + (linhas.length>1 && c.secao==="reservadas" ? -7 : 0);
+      s += '<rect x="'+x0+'" y="'+yy+'" width="'+(x1-x0)+'" height="'+hb+'" rx="4" fill="'+cor+'" opacity="0.92">'+
+           '<title>'+esc(c.nome)+' · '+esc(l.nome)+'\n'+fmtBr(c.inicio)+' → '+fmtBr(c.fim)+'\n'+secaoLabel(c.secao)+' · '+c.estado+'</title></rect>';
+    });
+
+    // FIXO/APOIO: linha discreta na base da pista
+    var fx = camp.filter(function(c){ return (c.tipo==="FIXA"||c.tipo==="APOIO"); });
+    fx.forEach(function(c, j){
+      var cor = c.tipo === "FIXA" ? cores.FIXA : cores.APOIO;
+      var yy = y + RH - 7 + j*7;
+      s += '<rect x="'+LR+'" y="'+yy+'" width="'+(W-LR)+'" height="5" rx="2.5" fill="'+cor+'" opacity="0.55">'+
+           '<title>'+esc(c.nome)+' · '+c.tipo+' · '+esc(l.nome)+'</title></rect>';
+    });
+  });
+
+  s += '</svg>';
+  document.getElementById("timeline").innerHTML = s;
+}
+
+function addDias(ds, n){ var d=new Date(ds+"T12:00:00"); d.setDate(d.getDate()+n); return iso(d); }
+function monthLabel(ds){ var p=ds.split("-"); var meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]; return meses[parseInt(p[1],10)-1]+" "+p[0]; }
+
+/* ---------- Tabela ---------- */
+function renderTable(){
+  var f = filtrosAtivos();
+  var all = todasCampanhas().filter(function(c){ return aplicarFiltros(c, f); });
+  all.sort(function(a,b){
+    if (a.localNum !== b.localNum) return a.localNum-b.localNum;
+    if (a.secao !== b.secao) return a.secao==="veiculando" ? -1 : 1;
+    return (a.inicio||"").localeCompare(b.inicio||"");
+  });
+
+  var grupos = {};
+  all.forEach(function(c){ (grupos[c.localNum] = grupos[c.localNum]||[]).push(c); });
+  var nums = Object.keys(grupos).map(Number).sort(function(a,b){ return a-b; });
+
+  // menu de telas
+  var hmenu = "";
+  nums.forEach(function(n){
+    hmenu += '<button type="button" onclick="irTela('+n+', this)">'+
+             '<span class="ct-num">#'+n+'</span>'+esc(grupos[n][0].localNome)+
+             '<span class="cnt">'+grupos[n].length+'</span></button>';
+  });
+  document.getElementById("telas-menu").innerHTML = hmenu;
+
+  // tabela agrupada por tela
+  var h = "";
+  nums.forEach(function(n){
+    h += '<tr class="grp" id="grp-'+n+'"><td colspan="7"><span class="g-ico">🖥</span>Tela #'+n+' — '+esc(grupos[n][0].localNome)+'</td></tr>';
+    grupos[n].forEach(function(c){
+      var bd = c.estado==="SEM_DATA" ? "b-encerrada" : "b-"+c.estado.toLowerCase();
+      h += '<tr>'+
+        '<td><b>'+c.localNum+'</b> · '+esc(c.localNome)+'</td>'+
+        '<td>'+esc(c.nome)+'</td>'+
+        '<td>'+secaoLabel(c.secao)+'</td>'+
+        '<td>'+fmtBr(c.inicio)+'</td>'+
+        '<td>'+fmtBr(c.fim)+'</td>'+
+        '<td>'+c.tipo+'</td>'+
+        '<td><span class="bdg '+bd+'">'+c.estado+'</span></td>'+
+        '</tr>';
+    });
+  });
+  if (!nums.length) h = '<tr><td colspan="7" style="text-align:center;color:var(--muted)">Nenhuma campanha encontrada.</td></tr>';
+  document.getElementById("tbody").innerHTML = h;
+  document.getElementById("tbl-count").textContent = "("+all.length+" de "+todasCampanhas().length+" campanhas)";
+}
+
+function irTela(n, btn){
+  var el = document.getElementById("grp-"+n);
+  if (el && el.scrollIntoView) el.scrollIntoView({ behavior:"smooth", block:"start" });
+  var nav = document.getElementById("telas-menu");
+  if (nav.querySelector){
+    var cur = nav.querySelector("button.on");
+    if (cur) cur.classList.remove("on");
+  }
+  if (btn) btn.classList.add("on");
+}
+
+function renderViews(){
+  renderTimeline(); renderTable(); renderGrupos();
+}
+
+/* ---------- Menu de grupos por situação ---------- */
+var GRUPOS = [
+  { v:"ATIVA", lbl:"Ativas" },
+  { v:"FIXA", lbl:"Fixa" },
+  { v:"APOIO", lbl:"Apoio" },
+  { v:"SEM_DATA", lbl:"Sem data" },
+  { v:"FUTURA", lbl:"Futura" }
+];
+function renderGrupos(){
+  var all = todasCampanhas();
+  var f = filtrosAtivos();
+  var h = '<span class="g-label">Grupos:</span>';
+  GRUPOS.forEach(function(g){
+    var n = all.filter(function(c){ return c.estado === g.v; }).length;
+    var on = f.estado === g.v ? " on" : "";
+    h += '<button type="button" class="'+on+'" onclick="setGrupo(\''+g.v+'\')">'+g.lbl+'<span class="cnt">'+n+'</span></button>';
+  });
+  document.getElementById("grupos").innerHTML = h;
+}
+function setGrupo(g){
+  var sel = document.getElementById("fEstado");
+  sel.value = sel.value === g ? "todas" : g;
+  renderAll();
+}
+
+function showTab(t){
+  document.getElementById("tab-leds").classList.toggle("active", t==="leds");
+  document.getElementById("leds-panel").style.display = t==="leds" ? "block" : "none";
+}
+
+/* ---------- Upload xlsx ---------- */
+function initDrop(){
+  var drop = document.getElementById("drop");
+  var fileInput = document.getElementById("file");
+  drop.addEventListener("click", function(){ fileInput.click(); });
+  ["dragenter","dragover"].forEach(function(ev){
+    drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add("drag"); });
+  });
+  ["dragleave","drop"].forEach(function(ev){
+    drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove("drag"); });
+  });
+  drop.addEventListener("drop", function(e){
+    if (e.dataTransfer.files.length) carregarArquivo(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener("change", function(){
+    if (this.files.length) carregarArquivo(this.files[0]);
+  });
+}
+
+function carregarArquivo(arq){
+  gsDesconectarSilencioso();
+  var rd = new FileReader();
+  rd.onload = function(){
+    try {
+      var wb = XLSX.read(new Uint8Array(rd.result), { type:"array", cellDates:true });
+      DADOS = parseXLSX(wb);
+      DADOS.fonte = arq.name;
+      GS_BASE = DADOS;
+      montarSelectLocal();
+      document.getElementById("meta").innerHTML =
+        "Fonte: <b>"+esc(arq.name)+"</b> &nbsp;·&nbsp; gerado hoje &nbsp;·&nbsp; "+(DADOS.locais.length)+" telas";
+      renderAll();
+      toast("✅ Planilha carregada: "+arq.name);
+    } catch (err) {
+      console.error(err);
+      toast("❌ Erro ao ler a planilha: "+err.message);
+    }
+  };
+  rd.readAsArrayBuffer(arq);
+}
+
+function montarSelectLocal(){
+  var sel = document.getElementById("fLocal");
+  if (!sel) return;
+  sel.innerHTML = '<option value="todas">Todas as telas</option>';
+  (DADOS.locais||[]).forEach(function(l){
+    sel.insertAdjacentHTML("beforeend", '<option value="'+l.numero+'">'+l.numero+' — '+esc(l.nome)+'</option>');
+  });
+}
+
+function parseXLSX(wb){
+  var ws = wb.Sheets["LEDS"];
+  if (!ws) throw new Error("Aba 'LEDS' não encontrada na planilha.");
+  if (!ws["!ref"]) throw new Error("Aba 'LEDS' vazia.");
+  var rng = XLSX.utils.decode_range(ws["!ref"]);
+  var cel = function(r, c){
+    var a = XLSX.utils.encode_cell({r:r, c:c});
+    var cell = ws[a];
+    if (!cell) return { texto: null, data: null };
+    if (cell.t === "d" && cell.v instanceof Date) return { texto: null, data: iso(cell.v) };
+    var txt = cell.w != null ? String(cell.w).trim() : String(cell.v != null ? cell.v : "").trim();
+    return { texto: txt || null, data: null };
+  };
+
+  var any = function(arr){ return arr.filter(Boolean).length > 0; };
+  var names = [];
+  for (var c = 0; c <= rng.e.c; c++){
+    var v = cel(0, c);
+    if (v && v.texto) names.push({ col: c, nome: v.texto });
+  }
+  names.sort(function(a,b){ return a.col-b.col; });
+
+  var locais = [];
+  for (var i = 0; i < names.length; i++){
+    var ncol = names[i].col;
+    var end = (i+1 < names.length) ? names[i+1].col : rng.e.c+1;
+    var iniCol = null, fimCol = null, progCol = null;
+    for (var cc = ncol+1; cc < end; cc++){
+      var lab = cel(2, cc);
+      if (!lab || !lab.texto) continue;
+      var s = lab.texto.toLowerCase();
+      if (s === "inicio" && iniCol == null) iniCol = cc;
+      else if (s === "fim" && fimCol == null) fimCol = cc;
+      else if (s.indexOf("programa") === 0 && progCol == null) progCol = cc;
+    }
+    if (iniCol==null) iniCol = ncol+1;
+    if (fimCol==null) fimCol = ncol+2;
+
+    var campanhas = [];
+    function lerLinha(r, secao){
+      var nomeCell = cel(r, ncol);
+      if (!nomeCell.texto) return;
+      var tn = nomeCell.texto;
+      if (tn === "----" || tn === "-") return;
+      var iniCell = cel(r, iniCol);
+      var fimCell = cel(r, fimCol);
+      var progCell = progCol!=null ? cel(r, progCol) : {texto:null,data:null};
+      campanhas.push({
+        nome: tn,
+        inicio: iniCell.data,
+        fim: fimCell.data,
+        ini_texto: iniCell.texto,
+        prog: progCell.texto,
+        secao: secao
+      });
+    }
+    for (var r1 = 3; r1 <= Math.min(11, rng.e.r); r1++) lerLinha(r1, "veiculando");
+    for (var r2 = 13; r2 <= Math.min(21, rng.e.r); r2++) lerLinha(r2, "reservadas");
+
+    locais.push({ numero: i+1, nome: names[i].nome, campanhas: campanhas });
+  }
+
+  var controle = [];
+  var cws = wb.Sheets["Controle Norberto"];
+  if (cws && cws["!ref"]){
+    var crng = XLSX.utils.decode_range(cws["!ref"]);
+    var ccel = function(r, c){
+      var a = XLSX.utils.encode_cell({r:r, c:c});
+      var cell = cws[a];
+      if (!cell) return { texto: null, data: null };
+      if (cell.t === "d" && cell.v instanceof Date) return { texto: null, data: iso(cell.v) };
+      var txt = cell.w != null ? String(cell.w).trim() : String(cell.v != null ? cell.v : "").trim();
+      return { texto: txt || null, data: null };
+    };
+    for (var cr = crng.s.r; cr <= crng.e.r; cr++){
+      var c0 = ccel(cr, 0), c1 = ccel(cr, 1), c2 = ccel(cr, 2), c3 = ccel(cr, 3);
+      if (!c0.texto && !c0.data) continue;
+      if (!c1 || !c1.texto) continue;
+      controle.push({
+        data: c0.data || (c0.texto ? parseDataTexto(c0.texto) : null),
+        campanhas: c1.texto,
+        regiao: c2 ? c2.texto : null,
+        n_regioes: c3 ? parseInt(c3.texto,10) || null : null
+      });
+    }
+  }
+
+  var hojeO = new Date();
+  return { fonte: "planilha", gerado_em: hojeO.getFullYear()+"-"+pad(hojeO.getMonth()+1)+"-"+pad(hojeO.getDate()),
+           locais: locais, controle: controle };
+}
+
+function parseDataTexto(txt){
+  var m = txt.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return m[1]+"-"+m[2]+"-"+m[3];
+  m = txt.match(/(\d{4})\/(\d{2})\/(\d{2})/);
+  if (m) return m[1]+"-"+m[2]+"-"+m[3];
+  m = txt.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) return m[3]+"-"+pad(+m[2])+"-"+pad(+m[1]);
+  return null;
+}
+
+/* ---------- Google Sheets ---------- */
+var GS_BASE = null;
+var gsTimer = null;
+var gsFonte = null;
+
+function gsProcessarUrl(u){
+  u = (u||"").trim();
+  var m = u.match(/spreadsheets\/d\/e\/([a-zA-Z0-9_-]+)(\/pub)?/);
+  if (m) return { pub: m[1] };
+  m = u.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return { id: m[1] };
+  return /^[a-zA-Z0-9_-]{20,}$/.test(u) ? { id: u } : null;
+}
+
+function gsStatus(msg, cls){
+  var el = document.getElementById("gs-status");
+  if (el){
+    el.className = "gs-status" + (cls ? " " + cls : "");
+    el.innerHTML = msg;
+  }
+  var live = document.getElementById("gs-live");
+  var btn = document.getElementById("btn-edit-gs");
+  if (live){
+    if (!gsFonte){
+      live.style.display = "none";
+      if (btn) btn.style.display = "none";
+      return;
+    }
+    live.style.display = "inline-block";
+    live.className = cls || "";
+    live.textContent = msg;
+    if (btn) btn.style.display = "inline-block";
+  } else if (btn){
+    btn.style.display = gsFonte ? "inline-block" : "none";
+  }
+}
+
+function gsConectar(){
+  var alvo = gsProcessarUrl(document.getElementById("gs-url").value);
+  var key = (document.getElementById("gs-key").value||"").trim();
+  if (!alvo){ gsStatus("❌ Informe o link (ou o ID) da planilha.", "err"); return; }
+  if (gsTimer){ clearInterval(gsTimer); gsTimer = null; }
+  alvo.key = key;
+  gsFonte = alvo;
+  var freq = parseInt(document.getElementById("gs-freq").value,10) || 0;
+  var tempo = freq ? (freq/1000)+"s" : "manual";
+  var modo = alvo.pub ? "publicada" : (key ? "API" : "gviz");
+  gsStatus("🟢 Conectando · "+modo+" · frequência "+tempo+"…", "warn");
+  if (freq) gsTimer = setInterval(function(){ gsCarregar(false); }, freq);
+  gsCarregar(true);
+}
+
+function gsDesconectarSilencioso(){
+  if (gsTimer){ clearInterval(gsTimer); gsTimer = null; }
+  gsFonte = null;
+  var live = document.getElementById("gs-live");
+  if (live) live.style.display = "none";
+}
+
+function gsDesconectar(){
+  gsDesconectarSilencioso();
+  if (GS_BASE){
+    DADOS = GS_BASE;
+    montarSelectLocal();
+    renderAll();
+  }
+  gsStatus("—", "");
+  toast("Google Sheets desconectado.");
+}
+
+function openGS(){
+  document.getElementById("gs").style.display = "flex";
+  try{
+    if (location.protocol === "file:"){
+      setTimeout(function(){
+        toast("⚠️ Google bloqueia conexões vindo de file:// — use o iniciar.bat (http://localhost:8000/dashboard/)");
+      }, 50);
+    }
+  }catch(e){ }
+}
+
+var CFG_KEY = "leds_gs_url_fixo";
+var CFG_LIST_KEY = "leds_gs_planilhas";
+var CFG_URL = "config.json";
+var CFG_PLANILHAS = [];
+
+function cfgLer(){ return CFG_PLANILHAS.slice(); }
+
+function cfgPersistir(lista){
+  CFG_PLANILHAS = lista.slice();
+  cfgRender();
+  var body = JSON.stringify({ planilhas: lista });
+  try {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", CFG_URL, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function(){
+      if (xhr.readyState === 4 && xhr.status !== 200){
+        toast("⚠️ Não consegui salvar a configuração. Abra pelo iniciar.bat (servidor que grava config).");
+      }
+    };
+    xhr.send(body);
+  } catch (e) { }
+}
+
+function cfgMigrarLocalStorage(){
+  var lista = [], fixo = null;
+  try { lista = JSON.parse(localStorage.getItem(CFG_LIST_KEY) || "[]") || []; } catch(e){ lista = []; }
+  if (!Array.isArray(lista)) lista = [];
+  try { fixo = localStorage.getItem(CFG_KEY) || null; } catch(e){ }
+  if (fixo && !lista.length) lista.push({ nome: "", url: fixo });
+  if (lista.length){
+    cfgPersistir(lista);
+    try { localStorage.removeItem(CFG_LIST_KEY); localStorage.removeItem(CFG_KEY); } catch(e){ }
+  }
+  return lista;
+}
+
+function cfgCarregarConfig(aoFinal){
+  var pr;
+  try {
+    pr = fetch(CFG_URL, { cache: "no-store" })
+      .then(function(r){ if (!r.ok) throw new Error("sem config"); return r.json(); });
+  } catch (e) {
+    pr = Promise.reject(e);
+  }
+  pr.then(
+    function(cfg){ CFG_PLANILHAS = (cfg && Array.isArray(cfg.planilhas)) ? cfg.planilhas : []; },
+    function(){ CFG_PLANILHAS = cfgMigrarLocalStorage(); }
+  ).then(function(){
+    cfgRender();
+    if (aoFinal) aoFinal();
+  });
+}
+
+function cfgSalvo(){
+  var l = cfgLer();
+  return l.length ? l[0].url : null;
+}
+
+function cfgItemAtual(){
+  var l = cfgLer();
+  return l[0] || null;
+}
+
+function cfgRender(){
+  var lista = cfgLer();
+  var sel = document.getElementById("sel-gs-planilha");
+  if (sel){
+    sel.innerHTML = '<option value="">📊 Escolher planilha…</option>';
+    lista.forEach(function(it){
+      var label = (it.nome || it.url).replace(/^https:\/\/docs\.google\.com\/spreadsheets\/d\/([^\/]+).*$/, "$1");
+      var opt = document.createElement("option");
+      opt.value = it.url;
+      opt.textContent = (it.nome ? it.nome + " — " : "") + urlCurto(it.url);
+      sel.appendChild(opt);
+    });
+    sel.disabled = !lista.length;
+  }
+  var cont = document.getElementById("cfg-list");
+  if (!cont) return;
+  if (!lista.length){
+    cont.innerHTML = '<div class="cfg-info">Nenhuma planilha salva ainda. Adicione uma acima.</div>';
+  } else {
+    cont.innerHTML = "";
+    lista.forEach(function(it, i){
+      var d = document.createElement("div");
+      d.className = "cfg-item";
+      var p = document.createElement("div");
+      p.className = "cfg-item-txt";
+      var nm = document.createElement("div");
+      nm.className = "cfg-item-nome";
+      nm.textContent = it.nome || "Sem nome";
+      if (i === 0) nm.textContent += " · padrão";
+      var u = document.createElement("div");
+      u.className = "cfg-item-url";
+      u.textContent = urlCurto(it.url);
+      p.appendChild(nm);
+      p.appendChild(u);
+      var bt = document.createElement("div");
+      bt.className = "cfg-item-btns";
+      var b1 = document.createElement("button");
+      b1.className = "btn";
+      b1.textContent = "Carregar";
+      b1.onclick = function(){ cfgCarregar(it.url); };
+      var b2 = document.createElement("button");
+      b2.className = "btn";
+      b2.textContent = "★ Padrão";
+      b2.title = "Usar como padrão ao abrir o painel";
+      b2.onclick = function(){ cfgPadrao(i); };
+      var b3 = document.createElement("button");
+      b3.className = "btn cfg-del";
+      b3.textContent = "🗑️ Excluir";
+      b3.title = "Excluir esta planilha salva";
+      b3.onclick = function(){ cfgRemover(i); };
+      bt.appendChild(b1);
+      bt.appendChild(b2);
+      bt.appendChild(b3);
+      d.appendChild(p);
+      d.appendChild(bt);
+      cont.appendChild(d);
+    });
+  }
+}
+
+function urlCurto(u){
+  var m = u.match(/\/spreadsheets\/d\/([^\/]+)/);
+  if (m) return "ID: "+m[1];
+  var m2 = u.match(/\/d\/e\/([^\/]+)/);
+  if (m2) return "publicada: "+m2[1];
+  return u.length > 60 ? u.slice(0, 57)+"…" : u;
+}
+
+function cfgInfoMsg(msg, ok){
+  var info = document.getElementById("cfg-info");
+  info.className = "cfg-info" + (ok ? " ok" : " err");
+  info.textContent = msg;
+}
+
+function openConfig(){
+  var cfg = document.getElementById("cfg");
+  document.getElementById("cfg-nome").value = "";
+  document.getElementById("cfg-url").value = "";
+  cfgInfoMsg(cfgLer().length ? "Planilhas salvas: " + cfgLer().length + "." : "Nenhuma planilha salva ainda.", true);
+  cfgRender();
+  cfg.style.display = "flex";
+}
+
+function fecharConfig(){
+  document.getElementById("cfg").style.display = "none";
+}
+
+function cfgAdicionar(){
+  var url = document.getElementById("cfg-url").value.trim();
+  var nome = document.getElementById("cfg-nome").value.trim();
+  if (!url){
+    cfgInfoMsg("⚠️ Cole um link (ou o ID) da planilha.", false);
+    return;
+  }
+  var lista = cfgLer();
+  for (var i = 0; i < lista.length; i++){
+    if (lista[i].url === url){
+      cfgInfoMsg("⚠️ Essa planilha já está salva.", false);
+      return;
+    }
+  }
+  lista.push({ nome: nome, url: url });
+  cfgPersistir(lista);
+  document.getElementById("cfg-nome").value = "";
+  document.getElementById("cfg-url").value = "";
+  cfgInfoMsg("✅ Planilha adicionada (" + lista.length + " total).", true);
+  cfgRender();
+}
+
+function cfgRemover(i){
+  var lista = cfgLer();
+  var it = lista[i];
+  if (!it) return;
+  var nome = it.nome || urlCurto(it.url);
+  if (!confirm("Excluir a planilha salva \"" + nome + "\"?")) return;
+  var eraPadrao = (i === 0 && lista.length > 1);
+  lista.splice(i, 1);
+  cfgPersistir(lista);
+  cfgInfoMsg("🗑️ Planilha removida.", true);
+  if (eraPadrao) cfgInfoMsg("🗑️ Removida. \"" + nome + "\" era a padrão — a próxima da lista agora é a padrão.", true);
+  cfgRender();
+}
+
+function cfgPadrao(i){
+  var lista = cfgLer();
+  var it = lista.splice(i, 1)[0];
+  lista.unshift(it);
+  cfgPersistir(lista);
+  cfgInfoMsg("⭐ '" + (it.nome || urlCurto(it.url)) + "' definida como padrão.", true);
+  cfgRender();
+}
+
+function cfgCarregar(url){
+  document.getElementById("gs-url").value = url;
+  var lista = cfgLer();
+  for (var i = 0; i < lista.length; i++){
+    if (lista[i].url === url){
+      var it = lista.splice(i, 1)[0];
+      lista.unshift(it);
+      break;
+    }
+  }
+  cfgPersistir(lista);
+  cfgRender();
+  fecharConfig();
+  toast("🔌 Conectando…");
+  gsConectar();
+}
+
+function selPlanilha(url){
+  if (!url) return;
+  cfgCarregar(url);
+  document.getElementById("sel-gs-planilha").value = "";
+}
+
+function gsToWB(rows, dateCols){
+  var ws = {};
+  var lastR = 0, lastC = 0;
+  rows.forEach(function(row, r){
+    if (!row) return;
+    for (var c = 0; c < row.length; c++){
+      var v = row[c];
+      if (v === null || v === undefined || v === "") continue;
+      var cell = null;
+      if (v instanceof Date){
+        cell = { t:"d", v: v, w: iso(v) };
+      } else if (typeof v === "boolean"){
+        cell = { t:"b", v: v, w: v ? "TRUE" : "FALSE" };
+      } else if (typeof v === "number"){
+        cell = { t:"n", v: v, w: String(v) };
+      } else {
+        var s = String(v).trim();
+        var isDateCol = dateCols && dateCols[c] === true;
+        if (isDateCol){
+          var ds = parseDataTexto(s);
+          if (ds) cell = { t:"d", v: new Date(ds+"T00:00:00Z"), w: ds };
+        }
+        if (!cell && !isDateCol && s !== "" && !isNaN(+s)){
+          cell = { t:"n", v: +s, w: s };
+        }
+        if (!cell) cell = { t:"s", v: s, w: s };
+      }
+      ws[XLSX.utils.encode_cell({r:r, c:c})] = cell;
+      if (r > lastR) lastR = r;
+      if (c > lastC) lastC = c;
+    }
+  });
+  ws["!ref"] = "A1:" + XLSX.utils.encode_col(lastC) + (lastR+1);
+  return ws;
+}
+
+function gsGvizDate(v){
+  if (v instanceof Date) return v;
+  if (typeof v === "object" && v && v.year != null){
+    return new Date(Date.UTC(+v.year, +v.month, +(v.day||1), +(v.hours||0), +(v.minutes||0), +(v.seconds||0)));
+  }
+  if (typeof v === "string"){
+    var m = v.match(/Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?/);
+    if (m) return new Date(Date.UTC(+m[1], +m[2], +m[3], +(m[4]||0), +(m[5]||0), +(m[6]||0)));
+  }
+  return null;
+}
+
+function gsWbGviz(json){
+  var cols = json.table.cols || [];
+  var dateCols = {};
+  cols.forEach(function(co, c){ if (co.type === "date" || co.type === "datetime") dateCols[c] = true; });
+  var rows = (json.table.rows||[]).map(function(row){
+    return (row.c||[]).map(function(cell, c){
+      var v = cell && cell.v;
+      if (v === null || v === undefined) return null;
+      if (dateCols[c]) return gsGvizDate(v) || String(v);
+      return typeof v === "number" || typeof v === "boolean" ? v : String(v);
+    });
+  });
+  return { rows: rows, dateCols: dateCols };
+}
+
+async function gsFetchGviz(id){
+  var url = "https://docs.google.com/spreadsheets/d/" + id + "/gviz/tq?tqx=out:json&headers=0&sheet=LEDS";
+  var res = await fetch(url, { mode:"cors" });
+  if (!res.ok) throw new Error("Falha de rede ("+res.status+") ao acessar a planilha.");
+  var txt = await res.text();
+  var a = txt.indexOf("{");
+  var b = txt.lastIndexOf("}");
+  if (a === -1 || b <= a) throw new Error("Resposta do Google inválida (planilha compartilhada como link?).");
+  var json;
+  try { json = JSON.parse(txt.slice(a, b+1)); }
+  catch (e){ throw new Error("Não foi possível interpretar a resposta do Google."); }
+  if (json.status !== "ok"){
+    throw new Error(json.errors && json.errors[0] ? json.errors[0].message : "Status do Google: "+json.status);
+  }
+  return gsWbGviz(json);
+}
+
+async function gsFetchApi(id, key){
+  var metaRes = await fetch("https://sheets.googleapis.com/v4/spreadsheets/"+id+"?key="+encodeURIComponent(key), { mode:"cors" });
+  var meta = await metaRes.json();
+  if (!metaRes.ok || meta.error) throw new Error((meta.error&&meta.error.message)||"Erro na Sheets API ("+metaRes.status+").");
+  var sheet = (meta.sheets||[]).find(function(s){ return s.properties && s.properties.title === "LEDS"; });
+  if (!sheet) throw new Error("Aba 'LEDS' não encontrada no Google Sheets.");
+
+  var vRes = await fetch("https://sheets.googleapis.com/v4/spreadsheets/"+id+"/values/"+encodeURIComponent("LEDS")+
+    "?key="+encodeURIComponent(key)+"&valueRenderOption=FORMATTED_VALUE", { mode:"cors" });
+  var vJson = await vRes.json();
+  if (!vRes.ok || vJson.error) throw new Error((vJson.error&&vJson.error.message)||"Erro ao ler valores ("+vRes.status+").");
+
+  var values = vJson.values || [];
+  var dateCols = {};
+  var labRow = values[2] || [];
+  labRow.forEach(function(lbl, c){
+    var s = String(lbl||"").trim().toLowerCase();
+    if (s === "inicio" || s === "fim") dateCols[c] = true;
+  });
+  return { rows: values, dateCols: dateCols };
+}
+
+function gsAcharAba(wb){
+  if (wb.Sheets["LEDS"]) return wb.Sheets["LEDS"];
+  var names = wb.SheetNames || Object.keys(wb.Sheets);
+  for (var i = 0; i < names.length; i++){
+    var ws = wb.Sheets[names[i]];
+    if (!ws || !ws["!ref"]) continue;
+    var rng = XLSX.utils.decode_range(ws["!ref"]);
+    var temInicio = false, temFim = false;
+    for (var c = 0; c <= rng.e.c && !(temInicio && temFim); c++){
+      var cell = ws[XLSX.utils.encode_cell({r:2, c:c})];
+      if (!cell) continue;
+      var s = String(cell.w != null ? cell.w : cell.v).trim().toLowerCase();
+      if (s === "inicio") temInicio = true;
+      else if (s === "fim") temFim = true;
+    }
+    if (temInicio && temFim) return ws;
+  }
+  return null;
+}
+
+async function gsFetchPub(token){
+  var url = "https://docs.google.com/spreadsheets/d/e/"+token+"/pub?output=xlsx";
+  var res = await fetch(url, { mode:"cors" });
+  if (!res.ok) throw new Error("Falha de rede ("+res.status+") ao baixar a planilha publicada.");
+  var buf = await res.arrayBuffer();
+  var wb = XLSX.read(new Uint8Array(buf), { type:"array", cellDates:true });
+  var ws = gsAcharAba(wb);
+  if (!ws) throw new Error("Nenhuma aba com o formato 'Leds Urbs' (labels inicio/Fim) encontrada na planilha publicada.");
+  return { Sheets: { "LEDS": ws } };
+}
+
+async function gsCarregar(mensagem){
+  if (!gsFonte) return;
+  if (mensagem) gsStatus("⏳ Buscando dados do Google…", "warn");
+  try {
+    var wb, modo;
+    if (gsFonte.pub){
+      wb = await gsFetchPub(gsFonte.pub);
+      modo = "publicada";
+    } else if (gsFonte.key){
+      var dados = await gsFetchApi(gsFonte.id, gsFonte.key);
+      wb = { Sheets: { "LEDS": gsToWB(dados.rows, dados.dateCols) } };
+      modo = "API";
+    } else {
+      var dados2 = await gsFetchGviz(gsFonte.id);
+      wb = { Sheets: { "LEDS": gsToWB(dados2.rows, dados2.dateCols) } };
+      modo = "gviz";
+    }
+    DADOS = parseXLSX(wb);
+    DADOS.fonte = "Google Sheets · "+modo;
+    DADOS.gerado_em = nowTexto();
+    montarSelectLocal();
+    renderAll();
+    var hora = new Date().toLocaleTimeString("pt-BR");
+    gsStatus("🟢 Ao vivo · atualizado às "+hora, "ok");
+    if (mensagem){
+      toast("🔄 Google Sheets atualizado: "+hora);
+      document.getElementById("gs").style.display = "none";
+    }
+  } catch (err){
+    console.error(err);
+    var emsg = (err && err.message) ? err.message : String(err);
+    if (/failed to fetch/i.test(emsg) || /networkerror/i.test(emsg) || /load failed/i.test(emsg)){
+      emsg = "O navegador bloqueou a conexão (CORS). Abra o painel pelo <b>iniciar.bat</b> (de file:// o Google rejeita), ou teste: link de edição /d/{ID}/ compartilhado, ou adicione uma API Key.";
+    }
+    gsStatus("🔴 "+emsg, "err");
+    if (mensagem) toast("❌ Google Sheets: "+emsg.replace(/<[^>]+>/g,""));
+  }
+}
+
+function nowTexto(){
+  var d = new Date();
+  return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes());
+}
+
+function editarGoogle(){
+  if (!gsFonte) return;
+  var url = gsFonte.id
+    ? "https://docs.google.com/spreadsheets/d/"+gsFonte.id+"/edit"
+    : "https://docs.google.com/spreadsheets/d/e/"+encodeURIComponent(gsFonte.pub)+"/pubhtml?widget=true&headers=false";
+  window.open(url, "_blank");
+}
+
+/* ---------- init ---------- */
+function renderAll(){
+  renderKPIs();
+  renderAtencao();
+  renderSituacao();
+  renderTop();
+  renderViews();
+}
+function cfgAplicar(){
+  var fixo = cfgSalvo();
+  cfgRender();
+  if (fixo){
+    document.getElementById("gs-url").value = fixo;
+    try { gsConectar(); } catch (e) { console.error(e); }
+  }
+}
+
+function init(){
+  initDrop();
+  GS_BASE = DADOS;
+  if (DADOS){
+    document.getElementById("drop").style.display = "block";
+    document.getElementById("file").addEventListener("change", null);
+    montarSelectLocal();
+    document.getElementById("meta").innerHTML =
+      "Fonte: <b>"+esc(DADOS.fonte||"—")+"</b> &nbsp;·&nbsp; dados gerados em "+esc(DADOS.gerado_em||"—")+
+      " &nbsp;·&nbsp; hoje: <b>"+fmtBr(HOJE)+"</b>"+
+      '<br><small style="opacity:.75">Atualize clicando em "📄 Carregar planilha" ou rodando <b>atualizar_dados.py</b> / <b>atualizar.bat</b></small>';
+    showTab("leds");
+    renderAll();
+  } else {
+    document.getElementById("drop").style.display = "block";
+    document.getElementById("meta").innerHTML = "Nenhum dado embutido. Carregue o arquivo .xlsx abaixo.";
+  }
+  cfgCarregarConfig(cfgAplicar);
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

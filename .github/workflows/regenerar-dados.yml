@@ -1,0 +1,36 @@
+name: Regenerar dados
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'atualizar_dados.py'
+      - 'planilha/**'
+  workflow_dispatch:
+
+jobs:
+  regenerar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Instalar openpyxl
+        run: pip install openpyxl
+
+      - name: Regenerar dados.js a partir da planilha
+        run: python atualizar_dados.py "planilha/Leds Urbs.xlsx"
+
+      - name: Commitar dados.js atualizado
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: dashboard/dados.js
+          commit_message: "Regenerar dados.js a partir da planilha"
+          commit_author: "GitHub Actions <actions@github.com>"
