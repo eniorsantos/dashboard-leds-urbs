@@ -466,27 +466,26 @@ function agruparPorNome(lista){
   var grupos = {};
   lista.forEach(function(c){
     var nome = ((c.nome||"").replace(/\s+/g," ")).trim() || "?";
-    var k = nome.toUpperCase();
-    if (!grupos[k]) grupos[k] = { nome: nome, inicio: null, fim: null, qtd: 0 };
+    var k = c.localNum + "|" + nome.toUpperCase();
+    if (!grupos[k]) grupos[k] = { localNum: c.localNum, nome: nome, inicio: null, fim: null, qtd: 0 };
     grupos[k].qtd++;
     if (c.inicio && (!grupos[k].inicio || c.inicio < grupos[k].inicio)) grupos[k].inicio = c.inicio;
     if (c.fim && (!grupos[k].fim || c.fim > grupos[k].fim)) grupos[k].fim = c.fim;
   });
   return Object.keys(grupos).map(function(k){ return grupos[k]; })
-      .sort(function(a,b){ return (b.qtd - a.qtd) || a.nome.localeCompare(b.nome); });
+      .sort(function(a,b){ return (a.localNum - b.localNum) || ((b.qtd - a.qtd) || a.nome.localeCompare(b.nome)); });
 }
 
 function kpiTitle(lista){
   return lista.slice(0, 12).map(function(g){
-    return g.nome + "  " + (g.inicio ? fmtBr(g.inicio) : "—") + " → " + (g.fim ? fmtBr(g.fim) : "—");
+    return "Tela #"+g.localNum+" · "+g.nome+"  " + (g.inicio ? fmtBr(g.inicio) : "—") + " → " + (g.fim ? fmtBr(g.fim) : "—");
   }).join("\n") + (lista.length > 12 ? "\n(+ " + (lista.length - 12) + " mais)" : "");
 }
 
 function renderKPIs(){
   var all = todasCampanhas();
-  var veic = all.filter(function(c){ return c.secao === "veiculando"; });
-  var gAtivas  = agruparPorNome(veic.filter(function(c){ return c.estado === "ATIVA" || c.estado === "FIXA"; }));
-  var gFixas   = agruparPorNome(veic.filter(function(c){ return c.estado === "FIXA"; }));
+  var gAtivas  = agruparPorNome(all.filter(function(c){ return c.estado === "ATIVA" || c.estado === "FIXA"; }));
+  var gFixas   = agruparPorNome(all.filter(function(c){ return c.estado === "FIXA"; }));
   var gRes     = agruparPorNome(all.filter(function(c){ return c.secao === "reservadas"; }));
   var gFut     = agruparPorNome(all.filter(function(c){ return c.estado === "FUTURA"; }));
   var gEnc     = agruparPorNome(all.filter(function(c){ return c.estado === "ENCERRADA"; }));
