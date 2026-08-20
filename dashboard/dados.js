@@ -1,7 +1,7 @@
 // Gerado automaticamente por atualizar_dados.py - nao editar na mao
 window.DADOS_LEDS = {
   "fonte": "Leds Urbs.xlsx",
-  "gerado_em": "2026-08-19 17:23",
+  "gerado_em": "2026-08-20 12:13",
   "locais": [
     {
       "numero": 1,
