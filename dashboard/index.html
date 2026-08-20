@@ -476,19 +476,38 @@ function agruparPorNome(lista){
       .sort(function(a,b){ return (a.localNum - b.localNum) || ((b.qtd - a.qtd) || a.nome.localeCompare(b.nome)); });
 }
 
+function agruparNomePeriodo(lista){
+  var grupos = {};
+  lista.forEach(function(c){
+    var nome = ((c.nome||"").replace(/\s+/g," ")).trim() || "?";
+    var k = nome.toUpperCase() + "|" + (c.inicio||"") + "|" + (c.fim||"");
+    if (!grupos[k]) grupos[k] = { nome: nome, inicio: c.inicio, fim: c.fim, qtd: 0, telas: {} };
+    grupos[k].qtd++;
+    grupos[k].telas[c.localNum] = true;
+  });
+  return Object.keys(grupos).map(function(k){ return grupos[k]; })
+      .sort(function(a,b){ return String(a.inicio||"").localeCompare(String(b.inicio||"")) || a.nome.localeCompare(b.nome); });
+}
+
 function kpiTitle(lista){
   return lista.slice(0, 12).map(function(g){
-    return "Tela #"+g.localNum+" · "+g.nome+"  " + (g.inicio ? fmtBr(g.inicio) : "—") + " → " + (g.fim ? fmtBr(g.fim) : "—");
+    var per = (g.inicio ? fmtBr(g.inicio) : "—") + " → " + (g.fim ? fmtBr(g.fim) : "—");
+    if (g.telas){
+      var telas = Object.keys(g.telas);
+      var cab = telas.length > 1 ? g.nome+"  ("+telas.length+" telas)" : "Tela #"+telas[0]+" · "+g.nome;
+      return cab + "  " + per;
+    }
+    return "Tela #"+g.localNum+" · "+g.nome+"  " + per;
   }).join("\n") + (lista.length > 12 ? "\n(+ " + (lista.length - 12) + " mais)" : "");
 }
 
 function renderKPIs(){
   var all = todasCampanhas();
-  var gAtivas  = agruparPorNome(all.filter(function(c){ return c.estado === "ATIVA" || c.estado === "FIXA"; }));
+  var gAtivas  = agruparNomePeriodo(all.filter(function(c){ return c.estado === "ATIVA" || c.estado === "FIXA"; }));
   var gFixas   = agruparPorNome(all.filter(function(c){ return c.estado === "FIXA"; }));
-  var gRes     = agruparPorNome(all.filter(function(c){ return c.secao === "reservadas"; }));
-  var gFut     = agruparPorNome(all.filter(function(c){ return c.estado === "FUTURA"; }));
-  var gEnc     = agruparPorNome(all.filter(function(c){ return c.estado === "ENCERRADA"; }));
+  var gRes     = agruparNomePeriodo(all.filter(function(c){ return c.secao === "reservadas"; }));
+  var gFut     = agruparNomePeriodo(all.filter(function(c){ return c.estado === "FUTURA"; }));
+  var gEnc     = agruparNomePeriodo(all.filter(function(c){ return c.estado === "ENCERRADA"; }));
   var kpis = [
     { bar:"#2563eb", num:String((DADOS.locais||[]).length), lbl:"Telas de LED", sub:"locais na rede" },
     { bar:"#16a34a", num:String(gAtivas.length), lbl:"Veiculando agora", sub:"ativas + fixas hoje", tip:kpiTitle(gAtivas) },
