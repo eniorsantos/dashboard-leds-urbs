@@ -926,6 +926,7 @@ function parseXLSX(wb){
           inicio: iniCell.data,
           fim: fimCell.data,
           ini_texto: iniCell.texto,
+          fim_texto: fimCell.texto,
           prog: progCell.texto,
           secao: secao
         });
@@ -1354,7 +1355,122 @@ async function gsFetchGviz(id){
   if (json.status !== "ok"){
     throw new Error(json.errors && json.errors[0] ? json.errors[0].message : "Status do Google: "+json.status);
   }
-  return gsWbGviz(json);
+
+  var base = gsWbGviz(json);
+  var rows = base.rows, dateCols = base.dateCols;
+
+  // Colunas de data também pelas células de título "inicio"/"Fim" (fica valendo
+  // para grupos cuja coluna o gviz tipou como texto por causa de "FIXO"/"APOIO").
+  rows.forEach(function(linha){
+    (linha || []).forEach(function(v, c){
+      if (typeof v === "string"){
+        var s = v.trim().toLowerCase();
+        if (s === "inicio" || s === "fim") dateCols[c] = true;
+      }
+    });
+  });
+
+  // Marcadores "FIXO"/"APOIO": o gviz descarta texto dentro de coluna de data
+  // (retorna null). O output CSV preserva tudo — usamos para sobrepor.
+  try {
+    var csvRes = await fetch("https://docs.google.com/spreadsheets/d/"+id+"/gviz/tq?tqx=out:csv&headers=0&sheet=LEDS", { mode:"cors" });
+    if (csvRes.ok){
+      var grid = parseCSVsimples(await csvRes.text());
+      for (var gi = 1; gi < grid.length; gi++){
+        var r = gi + 2;
+        if (r >= rows.length) break;
+        if (!rows[r]) rows[r] = [];
+        var linhaCsv = grid[gi];
+        for (var c = 0; c < linhaCsv.length; c++){
+          var marca = String(linhaCsv[c] == null ? "" : linhaCsv[c]).trim().toUpperCase();
+          if (marca === "FIXO" || marca === "APOIO"){
+            var nomeExiste = false;
+            for (var bc = Math.max(0, c-4); bc < c; bc++){
+              if (rows[r][bc] != null && String(rows[r][bc]).trim() !== ""){ nomeExiste = true; break; }
+            }
+            if (nomeExiste && (rows[r][c] === undefined || rows[r][c] === null)) rows[r][c] = marca;
+          }
+        }
+      }
+    }
+  } catch (e) { }
+
+  return { Sheets: { "LEDS": gsToWB(rows, dateCols) } };
+}
+
+async function gsFetchExport(id){
+  var url = "https://docs.google.com/spreadsheets/d/" + id + "/export?format=xlsx";
+  var res = await fetch(url, { mode:"cors" });
+  if (!res.ok) throw new Error("Falha ao baixar o XLSX publico da planilha ("+res.status+").");
+  var buf = await res.arrayBuffer();
+  var wb = XLSX.read(new Uint8Array(buf), { type:"array", cellDates:true });
+  var ws = gsAcharAba(wb);
+  if (!ws) throw new Error("Nenhuma aba com o formato 'Leds Urbs' (labels inicio/Fim) encontrada no xlsx.");
+  return { Sheets: { "LEDS": ws } };
+}
+
+function parseCSVsimples(txt){
+  var linhas = [], atual = [], buf = "", i = 0, inQ = false;
+  for (i = 0; i < txt.length; i++){
+    var ch = txt.charAt(i);
+    if (inQ){
+      if (ch === '"'){
+        if (txt.charAt(i + 1) === '"'){ buf += '"'; i++; }
+        else inQ = false;
+      } else buf += ch;
+    } else if (ch === '"'){
+      inQ = true;
+    } else if (ch === ","){
+      atual.push(buf); buf = "";
+    } else if (ch === "\n"){
+      atual.push(buf); linhas.push(atual); atual = []; buf = "";
+    } else if (ch !== "\r"){
+      buf += ch;
+    }
+  }
+  if (buf !== "" || atual.length){ atual.push(buf); linhas.push(atual); }
+  return linhas;
+}
+
+function parseDataSemAno(s){
+  s = String(s || "").trim();
+  if (/^(FIXO|APOIO)/i.test(s)) return null;
+  var m = s.match(/^(\d{1,2})\/(\d{1,2})$/);
+  if (m) return { d: +m[1], mes: +m[2] };
+  m = s.match(/^(\d{1,2})\/([a-zç]{3})\.?$/i);
+  if (m){
+    var meses = { jan:1, fev:2, mar:3, abr:4, mai:5, jun:6, jul:7, ago:8, set:9, out:10, nov:11, dez:12 };
+    var mo = meses[String(m[2]).toLowerCase()];
+    if (mo) return { d: +m[1], mes: mo };
+  }
+  m = s.match(/^(\d{1,2})\.(\d{1,2})$/);
+  if (m) return { d: +m[1], mes: +m[2] };
+  return null;
+}
+
+function corrigirDatasTexto(dados){
+  var hj = new Date();
+  var hy = hj.getFullYear();
+  (dados.locais || []).forEach(function(l){
+    (l.campanhas || []).forEach(function(c){
+      if (/^(FIXO|APOIO)$/i.test((c.ini_texto || "").trim())) return;
+      if (c.inicio && c.fim) return;
+      var iniP = c.inicio ? null : parseDataSemAno(c.ini_texto);
+      var fimP = c.fim ? null : parseDataSemAno(c.fim_texto);
+      if (!iniP && !fimP) return;
+      var ano = hy, fimAno = hy;
+      if (iniP && fimP){
+        if (iniP.mes > fimP.mes) fimAno = ano + 1;
+        var confere = new Date(fimAno, fimP.mes - 1, fimP.d, 12);
+        if (confere < hj){
+          ano = hy - 1;
+          fimAno = iniP.mes > fimP.mes ? ano + 1 : ano;
+        }
+      }
+      if (iniP && !c.inicio) c.inicio = ano + "-" + pad(iniP.mes) + "-" + pad(iniP.d);
+      if (fimP && !c.fim) c.fim = fimAno + "-" + pad(fimP.mes) + "-" + pad(fimP.d);
+    });
+  });
 }
 
 async function gsFetchApi(id, key){
@@ -1423,11 +1539,16 @@ async function gsCarregar(mensagem){
       wb = { Sheets: { "LEDS": gsToWB(dados.rows, dados.dateCols) } };
       modo = "API";
     } else {
-      var dados2 = await gsFetchGviz(gsFonte.id);
-      wb = { Sheets: { "LEDS": gsToWB(dados2.rows, dados2.dateCols) } };
-      modo = "gviz";
+      try {
+        wb = await gsFetchExport(gsFonte.id);
+        modo = "export";
+      } catch (erroExport){
+        wb = await gsFetchGviz(gsFonte.id);
+        modo = "gviz";
+      }
     }
     DADOS = parseXLSX(wb);
+    corrigirDatasTexto(DADOS);
     DADOS.fonte = "Google Sheets · "+modo;
     DADOS.gerado_em = nowTexto();
     montarSelectLocal();
