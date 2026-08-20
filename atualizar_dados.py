@@ -69,79 +69,119 @@ def find_latest_xlsx(paths):
         return None
     return max(candidates, key=lambda f: os.path.getmtime(f))
 
-def find_blocks(ws):
-    """Detecta as 16 telas: coluna de nome na linha 1 e colunas
-    inicio/Fim/programacao (labels na linha 3)."""
-    names = []
-    for c in range(1, ws.max_column + 1):
-        v = ws.cell(row=1, column=c).value
-        if v and str(v).strip():
-            names.append((c, str(v).strip()))
-    names.sort(key=lambda x: x[0])
-    blocks = []
-    for i, (name_col, nome) in enumerate(names):
-        end = names[i + 1][0] if i + 1 < len(names) else ws.max_column + 1
-        ini = fim = prog = None
-        for c in range(name_col + 1, end):
-            label = ws.cell(row=3, column=c).value
-            if label is None:
+def find_sections(ws):
+    """Linhas dos titulos 'Campanhas veiculando'/'Campanhas reservadas'."""
+    veic, res = [], []
+    for r, row in enumerate(ws.iter_rows(values_only=True), start=1):
+        for v in row:
+            if isinstance(v, str):
+                s = v.strip().lower()
+                if s == "campanhas veiculando":
+                    veic.append(r)
+                elif s == "campanhas reservadas":
+                    res.append(r)
+    return sorted(set(veic)), sorted(set(res))
+
+def find_groups(ws):
+    """Detecta grupos de telas: blocos lado a lado (nome + labels
+    inicio/Fim/programacao) que se repetem verticalmente. Cada grupo
+    comeca na linha de nomes, seguida dos titulos 'Campanhas veiculando'
+    e 'Campanhas reservadas' que delimitam as secoes de campanhas."""
+    veic, res = find_sections(ws)
+    if not veic:
+        return []
+    groups = []
+    for V in veic:
+        names_row = V - 1
+        labels = {}
+        for c in range(1, ws.max_column + 1):
+            v = ws.cell(row=V + 1, column=c).value
+            if not isinstance(v, str):
                 continue
-            s = str(label).strip().lower()
-            if s == "inicio" and ini is None:
-                ini = c
-            elif s == "fim" and fim is None:
-                fim = c
-            elif s.startswith("programa") and prog is None:
-                prog = c
-        # fallback padrão (name+1, name+2, name+3)
-        if ini is None:
-            ini = name_col + 1
-        if fim is None:
-            fim = name_col + 2
-        if prog is None:
-            prog = name_col + 3
-        blocks.append({"numero": i + 1, "nome": nome, "name": name_col,
-                       "ini": ini, "fim": fim, "prog": prog})
-    return blocks
+            s = v.strip().lower()
+            if s == "inicio":
+                labels[c] = "inicio"
+            elif s == "fim":
+                labels[c] = "fim"
+            elif s.startswith("programa"):
+                labels[c] = "prog"
+
+        name_cols = []
+        for c in range(1, ws.max_column + 1):
+            v = ws.cell(row=names_row, column=c).value
+            if v is not None and str(v).strip():
+                name_cols.append((c, str(v).strip()))
+        name_cols.sort(key=lambda x: x[0])
+
+        blocks = []
+        for i, (name_col, nome) in enumerate(name_cols):
+            end = name_cols[i + 1][0] if i + 1 < len(name_cols) else ws.max_column + 1
+            ini = fim = prog = None
+            for c in range(name_col + 1, end):
+                lab = labels.get(c)
+                if lab == "inicio" and ini is None:
+                    ini = c
+                elif lab == "fim" and fim is None:
+                    fim = c
+                elif lab == "prog" and prog is None:
+                    prog = c
+            if ini is None:
+                ini = name_col + 1
+            if fim is None:
+                fim = name_col + 2
+            if prog is None:
+                prog = name_col + 3
+            blocks.append({"nome": nome, "name": name_col,
+                           "ini": ini, "fim": fim, "prog": prog})
+
+        resV = next((r for r in res if r > V), None)
+        nextV = next((v2 for v2 in veic if v2 > V and (resV is None or v2 > resV)), None)
+        groups.append({
+            "blocks": blocks,
+            "veic_ini": V + 2,
+            "veic_fim": (resV - 1) if resV is not None else ws.max_row,
+            "res_ini": (resV + 1) if resV is not None else None,
+            "res_fim": (nextV - 2) if nextV is not None else ws.max_row,
+        })
+    return groups
 
 def parse_leds_sheet(ws):
-    blocks = find_blocks(ws)
     locais = []
-    for b in blocks:
-        locais.append({"numero": b["numero"], "nome": b["nome"], "campanhas": []})
+    for g in find_groups(ws):
+        for b in g["blocks"]:
+            local = {"numero": len(locais) + 1, "nome": b["nome"], "campanhas": []}
 
-    for local, b in zip(locais, blocks):
-        def ler_linha(r):
-            nome, _ = parse_val(ws.cell(row=r, column=b["name"]).value)
-            ini_txt, ini_date = parse_val(ws.cell(row=r, column=b["ini"]).value)
-            _, fim = parse_val(ws.cell(row=r, column=b["fim"]).value)
-            prog, _ = parse_val(ws.cell(row=r, column=b["prog"]).value)
-            nome = clean_name(nome)
-            if nome is None:
-                return None
-            return {
-                "nome": nome,
-                "inicio": ini_date,
-                "fim": fim,
-                "prog": prog,
-                "ini_texto": ini_txt,
-                "indice": None,
-            }
+            def ler_linha(r):
+                nome, _ = parse_val(ws.cell(row=r, column=b["name"]).value)
+                ini_txt, ini_date = parse_val(ws.cell(row=r, column=b["ini"]).value)
+                _, fim = parse_val(ws.cell(row=r, column=b["fim"]).value)
+                prog, _ = parse_val(ws.cell(row=r, column=b["prog"]).value)
+                nome = clean_name(nome)
+                if nome is None:
+                    return None
+                return {
+                    "nome": nome,
+                    "inicio": ini_date,
+                    "fim": fim,
+                    "prog": prog,
+                    "ini_texto": ini_txt,
+                    "indice": None,
+                }
 
-        # Seção 1: Campanhas veiculando (linhas 4 a 12)
-        for r in range(4, 13):
-            c = ler_linha(r)
-            if c:
-                c["secao"] = SECTION_VEICULANDO
-                local["campanhas"].append(c)
+            for r in range(g["veic_ini"], g["veic_fim"] + 1):
+                c = ler_linha(r)
+                if c:
+                    c["secao"] = SECTION_VEICULANDO
+                    local["campanhas"].append(c)
 
-        # Seção 2: Campanhas reservadas (linhas 14 a 22)
-        for r in range(14, 23):
-            c = ler_linha(r)
-            if c:
-                c["secao"] = SECTION_RESERVADAS
-                local["campanhas"].append(c)
+            if g["res_ini"] is not None:
+                for r in range(g["res_ini"], g["res_fim"] + 1):
+                    c = ler_linha(r)
+                    if c:
+                        c["secao"] = SECTION_RESERVADAS
+                        local["campanhas"].append(c)
 
+            locais.append(local)
     return locais
 
 def parse_controle_sheet(ws):

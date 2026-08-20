@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Leds Urbs · Painel de Programação</title>
+<title>Controle de Leds · Painel de Programação</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚌</text></svg>">
 <style>
   :root {
@@ -246,7 +246,7 @@
 <body>
 <header>
   <div>
-    <h1>🚌 Leds Urbs · Painel de Programação</h1>
+    <h1>🚌 Controle de Leds · Painel de Programação</h1>
     <div class="sub" id="meta">Carregando dados…</div>
   </div>
   <div class="spacer"></div>
@@ -264,7 +264,7 @@
 
 <div class="wrap">
   <nav class="tabs">
-    <button id="tab-leds" class="active" onclick="showTab('leds')">📍 Programação das Telas</button>
+    <<button id="tab-leds" class="active" onclick="showTab('leds')">📍 Programação das Telas</button>
   </nav>
 
   <!-- dropzone (escondida quando dados.js já carregados) -->
@@ -829,53 +829,93 @@ function parseXLSX(wb){
     return { texto: txt || null, data: null };
   };
 
-  var any = function(arr){ return arr.filter(Boolean).length > 0; };
-  var names = [];
-  for (var c = 0; c <= rng.e.c; c++){
-    var v = cel(0, c);
-    if (v && v.texto) names.push({ col: c, nome: v.texto });
-  }
-  names.sort(function(a,b){ return a.col-b.col; });
+  var findSections = function(){
+    var veic = [], res = [];
+    for (var r = rng.s.r; r <= rng.e.r; r++){
+      for (var c = 0; c <= rng.e.c; c++){
+        var txt = cel(r, c).texto;
+        if (!txt) continue;
+        var sl = txt.toLowerCase();
+        if (sl === "campanhas veiculando") veic.push(r);
+        else if (sl === "campanhas reservadas") res.push(r);
+      }
+    }
+    return {
+      veic: veic.filter(function(v, i){ return veic.indexOf(v) === i; }),
+      res:  res.filter(function(v, i){ return res.indexOf(v) === i; })
+    };
+  };
+  var secs = findSections();
 
   var locais = [];
-  for (var i = 0; i < names.length; i++){
-    var ncol = names[i].col;
-    var end = (i+1 < names.length) ? names[i+1].col : rng.e.c+1;
-    var iniCol = null, fimCol = null, progCol = null;
-    for (var cc = ncol+1; cc < end; cc++){
-      var lab = cel(2, cc);
-      if (!lab || !lab.texto) continue;
-      var s = lab.texto.toLowerCase();
-      if (s === "inicio" && iniCol == null) iniCol = cc;
-      else if (s === "fim" && fimCol == null) fimCol = cc;
-      else if (s.indexOf("programa") === 0 && progCol == null) progCol = cc;
-    }
-    if (iniCol==null) iniCol = ncol+1;
-    if (fimCol==null) fimCol = ncol+2;
+  secs.veic.forEach(function(V){
+    var namesRow = V - 1;
+    var labRow = V + 1;
 
-    var campanhas = [];
-    function lerLinha(r, secao){
-      var nomeCell = cel(r, ncol);
-      if (!nomeCell.texto) return;
-      var tn = nomeCell.texto;
-      if (tn === "----" || tn === "-") return;
-      var iniCell = cel(r, iniCol);
-      var fimCell = cel(r, fimCol);
-      var progCell = progCol!=null ? cel(r, progCol) : {texto:null,data:null};
-      campanhas.push({
-        nome: tn,
-        inicio: iniCell.data,
-        fim: fimCell.data,
-        ini_texto: iniCell.texto,
-        prog: progCell.texto,
-        secao: secao
-      });
+    var names = [];
+    for (var c = 0; c <= rng.e.c; c++){
+      var nm = cel(namesRow, c).texto;
+      if (nm) names.push({ col: c, nome: nm });
     }
-    for (var r1 = 3; r1 <= Math.min(11, rng.e.r); r1++) lerLinha(r1, "veiculando");
-    for (var r2 = 13; r2 <= Math.min(21, rng.e.r); r2++) lerLinha(r2, "reservadas");
+    names.sort(function(a, b){ return a.col - b.col; });
 
-    locais.push({ numero: i+1, nome: names[i].nome, campanhas: campanhas });
-  }
+    var labels = {};
+    for (var c = 0; c <= rng.e.c; c++){
+      var lb = cel(labRow, c).texto;
+      if (!lb) continue;
+      var sl2 = lb.toLowerCase();
+      if (sl2 === "inicio") labels[c] = "inicio";
+      else if (sl2 === "fim") labels[c] = "fim";
+      else if (sl2.indexOf("programa") === 0) labels[c] = "prog";
+    }
+
+    var resI = null;
+    for (var i = 0; i < secs.res.length; i++){ if (secs.res[i] > V){ resI = secs.res[i]; break; } }
+    var nextV = null;
+    for (var i = 0; i < secs.veic.length; i++){
+      if (secs.veic[i] > V && (resI == null || secs.veic[i] > resI)){ nextV = secs.veic[i]; break; }
+    }
+    var veicIni = V + 2;
+    var veicFim = resI != null ? resI - 1 : rng.e.r;
+    var resIni = resI != null ? resI + 1 : null;
+    var resFim = nextV != null ? nextV - 2 : rng.e.r;
+
+    for (var i = 0; i < names.length; i++){
+      var ncol = names[i].col;
+      var end = (i + 1 < names.length) ? names[i + 1].col : rng.e.c + 1;
+      var iniCol = null, fimCol = null, progCol = null;
+      for (var cc = ncol + 1; cc < end; cc++){
+        if (labels[cc] === "inicio" && iniCol == null) iniCol = cc;
+        else if (labels[cc] === "fim" && fimCol == null) fimCol = cc;
+        else if (labels[cc] === "prog" && progCol == null) progCol = cc;
+      }
+      if (iniCol == null) iniCol = ncol + 1;
+      if (fimCol == null) fimCol = ncol + 2;
+
+      var campanhas = [];
+      function lerLinha(r, secao){
+        var nomeCell = cel(r, ncol);
+        if (!nomeCell.texto) return;
+        var tn = nomeCell.texto;
+        if (tn === "----" || tn === "-") return;
+        var iniCell = cel(r, iniCol);
+        var fimCell = cel(r, fimCol);
+        var progCell = progCol != null ? cel(r, progCol) : {texto:null,data:null};
+        campanhas.push({
+          nome: tn,
+          inicio: iniCell.data,
+          fim: fimCell.data,
+          ini_texto: iniCell.texto,
+          prog: progCell.texto,
+          secao: secao
+        });
+      }
+      for (var r1 = veicIni; r1 <= veicFim; r1++) lerLinha(r1, "veiculando");
+      if (resIni != null){ for (var r2 = resIni; r2 <= resFim; r2++) lerLinha(r2, "reservadas"); }
+
+      locais.push({ numero: locais.length + 1, nome: names[i].nome, campanhas: campanhas });
+    }
+  });
 
   var controle = [];
   var cws = wb.Sheets["Controle Norberto"];

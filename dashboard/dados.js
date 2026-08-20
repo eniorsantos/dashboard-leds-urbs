@@ -1,7 +1,7 @@
 // Gerado automaticamente por atualizar_dados.py - nao editar na mao
 window.DADOS_LEDS = {
   "fonte": "Leds Urbs.xlsx",
-  "gerado_em": "2026-08-19 18:05",
+  "gerado_em": "2026-08-19 17:23",
   "locais": [
     {
       "numero": 1,
@@ -119,15 +119,6 @@ window.DADOS_LEDS = {
           "nome": "Tambau",
           "inicio": "2026-09-01",
           "fim": "2026-09-30",
-          "prog": null,
-          "ini_texto": null,
-          "indice": null,
-          "secao": "reservadas"
-        },
-        {
-          "nome": "04 - Estrada do Arraial",
-          "inicio": null,
-          "fim": null,
           "prog": null,
           "ini_texto": null,
           "indice": null,
@@ -264,15 +255,6 @@ window.DADOS_LEDS = {
           "ini_texto": null,
           "indice": null,
           "secao": "reservadas"
-        },
-        {
-          "nome": "05 - Antônio de Goes",
-          "inicio": null,
-          "fim": null,
-          "prog": null,
-          "ini_texto": null,
-          "indice": null,
-          "secao": "reservadas"
         }
       ]
     },
@@ -324,11 +306,971 @@ window.DADOS_LEDS = {
           "ini_texto": null,
           "indice": null,
           "secao": "reservadas"
+        }
+      ]
+    },
+    {
+      "numero": 4,
+      "nome": "04 - Estrada do Arraial",
+      "campanhas": [
+        {
+          "nome": "Tambau",
+          "inicio": "2026-08-01",
+          "fim": "2026-08-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
         },
         {
-          "nome": "06 - Abdias de Carvalho",
+          "nome": "Colegio Casa Forte",
+          "inicio": "2026-06-22",
+          "fim": "2026-09-22",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Ferreira Costa",
+          "inicio": "2026-08-10",
+          "fim": "2026-08-24",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "BETUCA",
           "inicio": null,
           "fim": null,
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "CBV",
+          "inicio": "2026-08-17",
+          "fim": "2026-08-23",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "SECRETARIA DE TURISMO E LAZER RECIFE",
+          "inicio": "2026-08-18",
+          "fim": "2026-09-01",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "schweppes",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "Senac",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "CBV",
+          "inicio": "2026-10-01",
+          "fim": "2026-10-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "CBV",
+          "inicio": "2026-11-01",
+          "fim": "2026-11-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "CBV",
+          "inicio": "2026-12-01",
+          "fim": "2026-12-07",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "CBV",
+          "inicio": "2026-01-01",
+          "fim": "2026-01-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "Ferreira Costa",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        }
+      ]
+    },
+    {
+      "numero": 5,
+      "nome": "05 - Antônio de Goes",
+      "campanhas": [
+        {
+          "nome": "CBV",
+          "inicio": "2026-08-17",
+          "fim": "2026-08-23",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Colegio Nucleo",
+          "inicio": "2026-07-18",
+          "fim": "2026-08-18",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Tambau",
+          "inicio": "2026-08-01",
+          "fim": "2026-08-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Fazenda Churrascada",
+          "inicio": "2026-06-18",
+          "fim": "2026-08-19",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Barbearia /Natto",
+          "inicio": "2026-06-01",
+          "fim": "2026-06-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Claro",
+          "inicio": "2026-02-06",
+          "fim": "2026-08-05",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Ferreira Costa",
+          "inicio": "2026-08-10",
+          "fim": "2026-08-24",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Aurora",
+          "inicio": "2026-06-29",
+          "fim": "2026-08-28",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Senac",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "CBV",
+          "inicio": "2026-10-01",
+          "fim": "2026-10-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "CBV",
+          "inicio": "2026-11-01",
+          "fim": "2026-11-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "CBV",
+          "inicio": "2026-12-01",
+          "fim": "2026-12-07",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "CBV",
+          "inicio": "2026-01-01",
+          "fim": "2026-01-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "schweppes",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "Tambau",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "Ferreira Costa",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        }
+      ]
+    },
+    {
+      "numero": 6,
+      "nome": "06 - Abdias de Carvalho",
+      "campanhas": [
+        {
+          "nome": "KANTAN",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "FIXO",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Aurora",
+          "inicio": "2026-06-29",
+          "fim": "2026-08-28",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "SECRETARIA DE TURISMO E LAZER RECIFE",
+          "inicio": "2026-08-18",
+          "fim": "2026-09-01",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "schweppes",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "Senac",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        }
+      ]
+    },
+    {
+      "numero": 7,
+      "nome": "07- Mascarenhas de Moraes",
+      "campanhas": [
+        {
+          "nome": "Austral/BETUCA",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "Apoio",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Labor",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "Apoio",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "IPOG",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "FIXO",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Aurora",
+          "inicio": "2026-06-29",
+          "fim": "2026-08-28",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Claro",
+          "inicio": "2026-02-06",
+          "fim": "2026-08-05",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "schweppes",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "Senac",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        }
+      ]
+    },
+    {
+      "numero": 8,
+      "nome": "08- Mascarenhas de Moraes",
+      "campanhas": [
+        {
+          "nome": "Austral",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "Apoio",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "SECRETARIA DE TURISMO E LAZER RECIFE",
+          "inicio": "2026-08-18",
+          "fim": "2026-09-01",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Pix Fibra",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "Apoio",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "FOTON",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "FIXO",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "schweppes",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "Senac",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        }
+      ]
+    },
+    {
+      "numero": 9,
+      "nome": "09- Agamenon",
+      "campanhas": [
+        {
+          "nome": "KANTAN",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "FIXO",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Tambau",
+          "inicio": "2026-08-01",
+          "fim": "2026-08-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Pix Fibra",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "Apoio",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Way/Barchef",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Ferreira Costa",
+          "inicio": "2026-08-10",
+          "fim": "2026-08-24",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "schweppes",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "Tambau",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "Senac",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "Ferreira Costa",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        }
+      ]
+    },
+    {
+      "numero": 10,
+      "nome": "10- Olinda Dom Helder Camara",
+      "campanhas": [
+        {
+          "nome": "Ferreira Costa",
+          "inicio": "2026-08-10",
+          "fim": "2026-08-24",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Way",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Pix Fibra",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "Apoio",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Ferreira Costa",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        }
+      ]
+    },
+    {
+      "numero": 11,
+      "nome": "11- Herculano Bandeira",
+      "campanhas": [
+        {
+          "nome": "Artemil",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "FIXO",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Barbearia/Labor",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "Apoio",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "schweppes",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "Senac",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        }
+      ]
+    },
+    {
+      "numero": 12,
+      "nome": "12- Cais Santa Rita - Expo",
+      "campanhas": [
+        {
+          "nome": "Novotel/ Recife Expo",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "FIXO",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Way/Barchef",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Multo Modal",
+          "inicio": "2026-07-26",
+          "fim": "2026-08-06",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Fazenda Churrascada",
+          "inicio": "2026-06-18",
+          "fim": "2026-08-19",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "SECRETARIA DE TURISMO E LAZER RECIFE",
+          "inicio": "2026-08-18",
+          "fim": "2026-09-01",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Litigio",
+          "inicio": "2026-08-05",
+          "fim": "2026-08-13",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Ferreira Costa",
+          "inicio": "2026-08-10",
+          "fim": "2026-08-24",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Ferreira Costa",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        }
+      ]
+    },
+    {
+      "numero": 13,
+      "nome": "13- Conselheiro Aguiar 1472 - Recife Trade",
+      "campanhas": [
+        {
+          "nome": "Recife Trade",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "FIXO",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Austral",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "Apoio",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Way",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Pix Fibra",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "Apoio",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Barbearia",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "schweppes",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "Tambau",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        }
+      ]
+    },
+    {
+      "numero": 14,
+      "nome": "14- Conselheiro Aguiar 2255",
+      "campanhas": [
+        {
+          "nome": "Austral",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "Apoio",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Way",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Pix Fibra",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "Apoio",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Natto",
+          "inicio": "2026-07-14",
+          "fim": "2026-08-13",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Barbearia",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Litigio",
+          "inicio": "2026-08-05",
+          "fim": "2026-08-13",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "schweppes",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        }
+      ]
+    },
+    {
+      "numero": 15,
+      "nome": "15- Gov Agamenon - Derby",
+      "campanhas": [
+        {
+          "nome": "Austral",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "Apoio",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Way",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Pix Fibra",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "Apoio",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Tambau",
+          "inicio": "2026-08-01",
+          "fim": "2026-08-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "schweppes",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "Tambau",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-30",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        },
+        {
+          "nome": "Senac",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-15",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "reservadas"
+        }
+      ]
+    },
+    {
+      "numero": 16,
+      "nome": "16- Cais Santa Rita - NOVOTEL",
+      "campanhas": [
+        {
+          "nome": "Novotel/ Recife Expo",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "FIXO",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Way",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Pix Fibra",
+          "inicio": null,
+          "fim": null,
+          "prog": null,
+          "ini_texto": "Apoio",
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Prefeitura  Recife",
+          "inicio": "2026-07-25",
+          "fim": "2026-08-08",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Litigio",
+          "inicio": "2026-08-05",
+          "fim": "2026-08-13",
+          "prog": null,
+          "ini_texto": null,
+          "indice": null,
+          "secao": "veiculando"
+        },
+        {
+          "nome": "Senac",
+          "inicio": "2026-09-01",
+          "fim": "2026-09-15",
           "prog": null,
           "ini_texto": null,
           "indice": null,

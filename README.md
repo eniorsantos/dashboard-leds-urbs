@@ -201,17 +201,19 @@ O painel passa a reconsultar o Google automaticamente (polling a cada N segundos
 
 ### Aba `LEDS` (16 blocos de telas)
 
-Cada tela ocupa um bloco de colunas. A detecção é dinâmica:
+A planilha pode conter **um ou mais grupos de telas**. Em cada grupo, as telas ficam lado a lado em blocos de colunas, e os grupos podem se repetir verticalmente (ex.: 6 linhas de cabeçalho × 3 telas = 16 telas):
 
 | O quê | Onde está |
 | --- | --- |
-| Nome da tela | **Linha 1** (coluna onde há texto) |
-| "Campanhas veiculando" | Linha 2 (referência visual) |
-| Labels `inicio` / `Fim` / `programação` | **Linha 3** — usados para achar as colunas de cada bloco |
-| Campanhas **veiculando** | Linhas **4 a 12** |
-| Campanhas **reservadas** | Linhas **14 a 22** |
+| Nome da tela | Linha do grupo onde há texto (ex.: linha 1, 22, 43, …) |
+| `Campanhas veiculando` | Linha seguinte ao nome — título que delimitada o bloco |
+| `Campanhas reservadas` | Título que fecha o bloco (delimita o fim das veiculando) |
+| Labels `inicio` / `Fim` / `programação` | Linha após `Campanhas veiculando` — usados para achar as colunas de cada bloco |
+| Campanhas **veiculando** | Linhas entre `Campanhas veiculando` e `Campanhas reservadas` |
+| Campanhas **reservadas** | Linhas seguintes até o próximo grupo (ou o fim da aba) |
 
-- Se a linha 3 não tiver os labels, usa-se o padrão `nome+1`, `nome+2`, `nome+3`.
+- O parser localiza os títulos `Campanhas veiculando`/`Campanhas reservadas` e o último grupo usa o fim da aba.
+- Se a linha de labels não tiver `inicio`/`Fim`/`programação`, usa-se o padrão `nome+1`, `nome+2`, `nome+3`.
 - Valor **`----`** (ou `-`, ou vazio) = slot vazio → ignorado.
 - `FIXO` e `Apoio` na coluna de início são guardados no campo `ini_texto` (tipo de campanha), não como data.
 
@@ -280,7 +282,7 @@ Todo o app é um único arquivo (`<style>` + HTML + `<script>`). Principais bloc
 | --- | --- |
 | **Helpers** | `pad`, `hojeISO`, `iso` (getters UTC), `diasEntre`, `fmtBr`, `esc` (escape XSS), `toast`, `parseDataTexto` |
 | **Classificação** | `tipoCamp` (FIXA/APOIO/PERIODO), `estadoCamp` (FIXA/APOIO/ATIVA/FUTURA/ENCERRADA/SEM_DATA) |
-| **Parse da planilha** | `parseXLSX(wb)` — mesma regra do Python (blocos na linha 3, veiculando 4–12, reservadas 14–22, `FIXO`/`Apoio` → `ini_texto`) |
+| **Parse da planilha** | `parseXLSX(wb)` — mesma regra do Python (detecta grupos por `Campanhas veiculando`/`reservadas`, `FIXO`/`Apoio` → `ini_texto`) |
 | **Render** | `renderAll()` → `renderKPIs`, `renderAtencao`, `renderSituacao`, `renderTop`; e `renderViews()` → `renderTimeline` (Gantt SVG), `renderTable`, `renderGrupos`, `irTela` |
 | **Upload** | `initDrop`, `carregarArquivo` (FileReader + SheetJS) → `parseXLSX` → render |
 | **Google Sheets** | `gsProcessarUrl`, `gsFetchGviz`, `gsFetchApi`, `gsToWB`, `gsWbGviz`, `gsCarregar`, `gsConectar`, `gsDesconectar`, `editarGoogle`, `gsStatus` (polling 15s/30s/60s) |
