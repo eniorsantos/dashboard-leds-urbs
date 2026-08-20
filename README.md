@@ -56,7 +56,7 @@ dashboard/
 
 ### Recursos do painel
 
-- **KPIs**: total de telas, campanhas ativas agora, fixas, apoio, reservadas, futuras e encerradas.
+- **KPIs**: total de telas, campanhas ativas agora, fixas, reservadas, futuras e encerradas — **agrupadas por nome** (cada campanha conta 1×, mesmo repetida em várias telas); no *tooltip* do número aparece cada campanha com seu período de início/fim consolidado (menor início / maior fim).
 - **Atenção**: listas "encerram em 7 dias" e "iniciam em 21 dias".
 - **Situação**: gráfico de barras com campanhas por situação.
 - **Anunciantes**: ranking dos que mais veiculam telas.

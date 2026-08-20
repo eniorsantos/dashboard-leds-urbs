@@ -251,13 +251,13 @@
   </div>
   <div class="spacer"></div>
   <span id="gs-live" style="display:none"></span>
- <!-- <button class="btn" onclick="openConfig()">⚙️ Configurações</button> -->
+ <button class="btn" onclick="openConfig()">⚙️ Configurações</button> 
   <select id="sel-gs-planilha" class="btn sel-btn" onchange="selPlanilha(this.value)" title="Escolher planilha do Google">
     <option value="">📊 Escolher planilha…</option>
   </select>
-  <!-- <button class="btn" onclick="openGS()">🌐 Google Sheets</button> 
+   <button class="btn" onclick="openGS()">🌐 Google Sheets</button> 
   <button class="btn" id="btn-edit-gs" style="display:none" onclick="editarGoogle()">✏️ Editar no Google</button>
-  <button class="btn primary" onclick="document.getElementById('file').click()">📄 Carregar planilha (.xlsx)</button>-->
+  <button class="btn primary" onclick="document.getElementById('file').click()">📄 Carregar planilha (.xlsx)</button>
   <button class="btn" onclick="window.print()">🖨️ Imprimir / PDF</button>
   <input type="file" id="file" accept=".xlsx, .xls">
 </header>
@@ -462,25 +462,46 @@ function aplicarFiltros(camp, f){
 }
 
 /* ---------- KPIs ---------- */
+function agruparPorNome(lista){
+  var grupos = {};
+  lista.forEach(function(c){
+    var nome = ((c.nome||"").replace(/\s+/g," ")).trim() || "?";
+    var k = nome.toUpperCase();
+    if (!grupos[k]) grupos[k] = { nome: nome, inicio: null, fim: null, qtd: 0 };
+    grupos[k].qtd++;
+    if (c.inicio && (!grupos[k].inicio || c.inicio < grupos[k].inicio)) grupos[k].inicio = c.inicio;
+    if (c.fim && (!grupos[k].fim || c.fim > grupos[k].fim)) grupos[k].fim = c.fim;
+  });
+  return Object.keys(grupos).map(function(k){ return grupos[k]; })
+      .sort(function(a,b){ return (b.qtd - a.qtd) || a.nome.localeCompare(b.nome); });
+}
+
+function kpiTitle(lista){
+  return lista.slice(0, 12).map(function(g){
+    return g.nome + "  " + (g.inicio ? fmtBr(g.inicio) : "—") + " → " + (g.fim ? fmtBr(g.fim) : "—");
+  }).join("\n") + (lista.length > 12 ? "\n(+ " + (lista.length - 12) + " mais)" : "");
+}
+
 function renderKPIs(){
   var all = todasCampanhas();
   var veic = all.filter(function(c){ return c.secao === "veiculando"; });
-  var ativas = veic.filter(function(c){ return c.estado === "ATIVA" || c.estado === "FIXA"; }).length;
-  var futuras = all.filter(function(c){ return c.estado === "FUTURA"; }).length;
-  var encerradas = all.filter(function(c){ return c.estado === "ENCERRADA"; }).length;
-  var tote = all.filter(function(c){ return c.secao === "reservadas"; }).length;
+  var gAtivas  = agruparPorNome(veic.filter(function(c){ return c.estado === "ATIVA" || c.estado === "FIXA"; }));
+  var gFixas   = agruparPorNome(veic.filter(function(c){ return c.estado === "FIXA"; }));
+  var gRes     = agruparPorNome(all.filter(function(c){ return c.secao === "reservadas"; }));
+  var gFut     = agruparPorNome(all.filter(function(c){ return c.estado === "FUTURA"; }));
+  var gEnc     = agruparPorNome(all.filter(function(c){ return c.estado === "ENCERRADA"; }));
   var kpis = [
     { bar:"#2563eb", num:String((DADOS.locais||[]).length), lbl:"Telas de LED", sub:"locais na rede" },
-    { bar:"#16a34a", num:String(ativas), lbl:"Veiculando agora", sub:"ativas + fixas hoje" },
-    { bar:"#0d9488", num:String(veic.filter(function(c){return c.estado==="FIXA";}).length), lbl:"Campanhas fixas", sub:"veiculação permanente" },
-    { bar:"#d97706", num:String(tote), lbl:"Reservadas", sub:"agendadas no futuro" },
-    { bar:"#2563eb", num:String(futuras), lbl:"Futuras", sub:"com data de início" },
-    { bar:"#94a3b8", num:String(encerradas), lbl:"Encerradas", sub:"período já finalizado" }
+    { bar:"#16a34a", num:String(gAtivas.length), lbl:"Veiculando agora", sub:"ativas + fixas hoje", tip:kpiTitle(gAtivas) },
+    { bar:"#0d9488", num:String(gFixas.length), lbl:"Campanhas fixas", sub:"veiculação permanente", tip:kpiTitle(gFixas) },
+    { bar:"#d97706", num:String(gRes.length), lbl:"Reservadas", sub:"agendadas no futuro", tip:kpiTitle(gRes) },
+    { bar:"#2563eb", num:String(gFut.length), lbl:"Futuras", sub:"com data de início", tip:kpiTitle(gFut) },
+    { bar:"#94a3b8", num:String(gEnc.length), lbl:"Encerradas", sub:"período já finalizado", tip:kpiTitle(gEnc) }
   ];
   var h = "";
   kpis.forEach(function(k){
     h += '<div class="kpi"><div class="bar" style="background:'+k.bar+'"></div>'+
-         '<div class="num" style="color:'+k.bar+'">'+k.num+'</div>'+
+         '<div class="num" style="color:'+k.bar+'"'+(k.tip ? ' title="'+esc(k.tip)+'"' : '')+'>'+k.num+'</div>'+
          '<div class="lbl">'+k.lbl+'</div><div class="sub">'+k.sub+'</div></div>';
   });
   document.getElementById("kpis").innerHTML = h;
