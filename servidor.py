@@ -20,7 +20,8 @@ RAIZ = os.path.dirname(os.path.abspath(__file__))
 class Handler(SimpleHTTPRequestHandler):
     def do_POST(self):
         parsed = urlparse(self.path)
-        if parsed.path.endswith("config.json"):
+        arq = os.path.basename(parsed.path)
+        if arq in ("config.json", "logo.json"):
             n = int(self.headers.get("Content-Length", 0) or 0)
             data = self.rfile.read(n) if n else b""
             try:
@@ -33,7 +34,7 @@ class Handler(SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(body)
                 return
-            alvo = os.path.join(RAIZ, "dashboard", "config.json")
+            alvo = os.path.join(RAIZ, "dashboard", arq)
             try:
                 with open(alvo, "w", encoding="utf-8") as f:
                     json.dump(obj, f, ensure_ascii=False, indent=2)

@@ -43,6 +43,9 @@
   }
   header h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: .3px; }
   header .sub { font-size: 12.5px; opacity: .85; margin-top: 2px; }
+  header .brand { display: flex; align-items: center; gap: 12px; }
+  #logo { height: 38px; max-width: 160px; width: auto; object-fit: contain; display: none; border-radius: 6px; background: #fff; padding: 3px; }
+  .logo-preview { max-height: 90px; max-width: 100%; object-fit: contain; border: 1px solid var(--border); border-radius: 10px; margin: 4px 0 2px; background: #f8fafc; }
   .spacer { flex: 1; }
   .btn {
     background: rgba(255,255,255,.14);
@@ -245,19 +248,23 @@
 </head>
 <body>
 <header>
-  <div>
-    <h1>🚌 Controle de Leds · Painel de Programação</h1>
-    <div class="sub" id="meta">Carregando dados…</div>
+  <div class="brand">
+    <img id="logo" alt="Logo">
+    <div>
+      <h1>🚌 Controle de Leds · Painel de Programação</h1>
+      <div class="sub" id="meta">Carregando dados…</div>
+    </div>
   </div>
   <div class="spacer"></div>
+  <button class="btn" onclick="openLogo()" title="Inserir logo no cabeçalho">🖼️ Logo</button>
   <span id="gs-live" style="display:none"></span>
-<!-- <button class="btn" onclick="openConfig()">⚙️ Configurações</button> -->
+<button class="btn" onclick="openConfig()">⚙️ Configurações</button>
   <select id="sel-gs-planilha" class="btn sel-btn" onchange="selPlanilha(this.value)" title="Escolher planilha do Google">
     <option value="">📊 Escolher planilha…</option>
   </select>
- <!--  <button class="btn" onclick="openGS()">🌐 Google Sheets</button> 
+  <button class="btn" onclick="openGS()">🌐 Google Sheets</button> 
   <button class="btn" id="btn-edit-gs" style="display:none" onclick="editarGoogle()">✏️ Editar no Google</button>
-  <button class="btn primary" onclick="document.getElementById('file').click()">📄 Carregar planilha (.xlsx)</button> -->
+  <button class="btn primary" onclick="document.getElementById('file').click()">📄 Carregar planilha (.xlsx)</button>
   <button class="btn" onclick="window.print()">🖨️ Imprimir / PDF</button>
   <input type="file" id="file" accept=".xlsx, .xls">
 </header>
@@ -392,6 +399,34 @@
     <div class="cfg-btns">
       <div class="sp"></div>
       <button class="btn" onclick="fecharConfig()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="cfg-overlay" id="cfg-logo" onclick="if(event.target===this)fecharLogo()">
+  <div class="cfg-drawer">
+    <button class="cfg-close" onclick="fecharLogo()" title="Fechar">✕</button>
+    <h2>🖼️ Logo no cabeçalho</h2>
+    <div class="cfg-sub">Exibida ao lado do título. Salva em <b>dashboard/logo.json</b> (via servidor).</div>
+
+    <img id="logo-preview" class="logo-preview" alt="Pré-visualização">
+
+    <label>Enviar imagem do computador</label>
+    <input type="file" id="logo-file" accept="image/*" onchange="logoArquivo(this)">
+    <div class="cfg-btns" style="margin-top:6px">
+      <button class="btn" onclick="document.getElementById('logo-file').click()">⬆️ Escolher arquivo</button>
+    </div>
+
+    <label>Ou cole um link de imagem</label>
+    <input type="text" id="logo-url" placeholder="https://…/logo.png" autocomplete="off">
+    <div class="cfg-btns" style="margin-top:6px">
+      <button class="btn primary" onclick="logoAplicarUrl()">Aplicar URL</button>
+      <button class="btn" onclick="logoRemover()">✖ Remover logo</button>
+    </div>
+
+    <div class="cfg-btns">
+      <div class="sp"></div>
+      <button class="btn" onclick="fecharLogo()">Fechar</button>
     </div>
   </div>
 </div>
@@ -1229,6 +1264,116 @@ function fecharConfig(){
   document.getElementById("cfg").style.display = "none";
 }
 
+/* ---------- Logo do cabeçalho (salva em dashboard/logo.json) ---------- */
+var LOGO_URL = "logo.json";
+var LOGO_ATUAL = "";
+
+function logoRender(){
+  var el = document.getElementById("logo");
+  var prev = document.getElementById("logo-preview");
+  var src = LOGO_ATUAL && LOGO_ATUAL.length > 10 ? LOGO_ATUAL : "";
+  if (src){
+    el.src = src;
+    el.style.display = "";
+    if (prev){ prev.src = src; prev.style.display = ""; }
+  } else {
+    el.style.display = "none";
+    if (prev) prev.style.display = "none";
+  }
+}
+
+function logoCarregar(){
+  try {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", LOGO_URL, true);
+    xhr.onreadystatechange = function(){
+      if (xhr.readyState !== 4) return;
+      try {
+        var obj = xhr.status === 200 ? JSON.parse(xhr.responseText) : {};
+        LOGO_ATUAL = (obj && typeof obj.data === "string") ? obj.data : "";
+      } catch(e){ LOGO_ATUAL = ""; }
+      logoRender();
+    };
+    xhr.send();
+  } catch (e) {
+    LOGO_ATUAL = "";
+    logoRender();
+  }
+}
+
+function logoSalvar(src){
+  var body = JSON.stringify({ data: src || "" });
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", LOGO_URL, true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onreadystatechange = function(){
+    if (xhr.readyState !== 4) return;
+    if (xhr.status === 200){
+      LOGO_ATUAL = src || "";
+      logoRender();
+      fecharLogo();
+      toast(src ? "✅ Logo salva em logo.json" : "🖼️ Logo removida");
+    } else {
+      toast("⚠️ Falhou ao salvar a logo. Abra pelo iniciar.bat (servidor que grava em logo.json).");
+    }
+  };
+  xhr.send(body);
+}
+
+function openLogo(){
+  document.getElementById("logo-url").value = "";
+  logoRender();
+  document.getElementById("cfg-logo").style.display = "flex";
+}
+
+function fecharLogo(){
+  document.getElementById("cfg-logo").style.display = "none";
+}
+
+function logoArquivo(input){
+  var f = input.files && input.files[0];
+  if (!f){ return; }
+  if (f.type.indexOf("image/") !== 0){ toast("⚠️ Selecione um arquivo de imagem."); return; }
+  var leitor = new FileReader();
+  leitor.onload = function(){
+    var src = String(leitor.result);
+    if (src.length < 100){ toast("⚠️ Arquivo de imagem inválido."); return; }
+    logoSalvar(src);
+  };
+  leitor.readAsDataURL(f);
+  input.value = "";
+}
+
+function logoAplicarUrl(){
+  var u = document.getElementById("logo-url").value.trim();
+  if (!u){ toast("⚠️ Cole o link da imagem."); return; }
+  if (u.toLowerCase().indexOf("data:image/") === 0){
+    logoSalvar(u);
+    return;
+  }
+  logoSalvarUrlExterna(u);
+}
+
+function logoSalvarUrlExterna(u){
+  fetch(u)
+    .then(function(r){
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.blob();
+    })
+    .then(function(blob){
+      var leitor = new FileReader();
+      leitor.onload = function(){ logoSalvar(String(leitor.result)); };
+      leitor.readAsDataURL(blob);
+    })
+    .catch(function(){
+      logoSalvar(u);
+    });
+}
+
+function logoRemover(){
+  logoSalvar("");
+}
+
 function cfgAdicionar(){
   var url = document.getElementById("cfg-url").value.trim();
   var nome = document.getElementById("cfg-nome").value.trim();
@@ -1621,6 +1766,8 @@ function cfgAplicar(){
 
 function init(){
   initDrop();
+  logoRender();
+  logoCarregar();
   GS_BASE = DADOS;
   if (DADOS){
     document.getElementById("drop").style.display = "block";
